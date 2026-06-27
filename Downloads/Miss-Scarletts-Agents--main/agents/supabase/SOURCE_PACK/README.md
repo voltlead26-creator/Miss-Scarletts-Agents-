@@ -4,6 +4,7 @@ This pack is the local reference for the Supabase agent. It is structured as att
 
 ## Pack map
 
+- [00_Fundamentals.md](./00_Fundamentals.md)
 - [01_Supabase_Platform_Model.md](./01_Supabase_Platform_Model.md)
 - [02_Postgres_Foundation.md](./02_Postgres_Foundation.md)
 - [03_Auth_And_Session_Handling.md](./03_Auth_And_Session_Handling.md)

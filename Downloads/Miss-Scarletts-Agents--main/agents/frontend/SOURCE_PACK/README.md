@@ -4,6 +4,7 @@ This pack is the working reference for the Frontend agent. It is organized as at
 
 ## Pack map
 
+- [00_Fundamentals.md](./00_Fundamentals.md)
 - [01_UI_Foundations.md](./01_UI_Foundations.md)
 - [02_React_Components.md](./02_React_Components.md)
 - [03_NextJS_App_Router.md](./03_NextJS_App_Router.md)

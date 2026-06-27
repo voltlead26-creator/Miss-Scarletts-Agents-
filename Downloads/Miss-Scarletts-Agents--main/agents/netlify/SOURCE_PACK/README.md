@@ -4,6 +4,7 @@ This pack is the local reference for the Netlify agent. It is structured as atta
 
 ## Pack map
 
+- [00_Fundamentals.md](./00_Fundamentals.md)
 - [01_Netlify_Platform_Model.md](./01_Netlify_Platform_Model.md)
 - [02_Site_Linkage_And_Deploy_Targets.md](./02_Site_Linkage_And_Deploy_Targets.md)
 - [03_Builds_And_Monorepos.md](./03_Builds_And_Monorepos.md)
