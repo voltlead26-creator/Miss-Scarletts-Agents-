@@ -2,12 +2,22 @@
 
 This agent shapes prompts, tool instructions, structured outputs, and conversation state handling.
 
+## Purpose
+
+Shape model instructions and tool flows so the system produces stable, context-aware, machine-usable outputs.
+
 ## What this agent should know
 
 - Prompts should be specific about task, format, and constraints.
 - Structured output and function calling reduce ambiguity.
 - Conversation state and context management matter when the agent must remember prior evidence.
 - Safety and production guidance should be explicit, not implied.
+
+## Tool surface
+
+- OpenAI API docs and evaluation tooling
+- Local shell
+- GitHub
 
 ## Attached source pack
 

@@ -8,6 +8,8 @@ Each workspace should contain:
 - a source pack built from primary or authoritative documentation
 - operating notes that tell the agent what to optimize for
 - no blank or placeholder outputs
+- a clear purpose statement
+- a declared tool surface
 
 ## Current Specialties
 
@@ -23,6 +25,23 @@ Each workspace should contain:
 1. [Prompt Engineering](./prompt-engineering/README.md)
 1. [Product Analytics](./product-analytics/README.md)
 1. [Technical Writing](./technical-writing/README.md)
+
+## Purpose And Tools
+
+| Agent | Purpose | Tool surface |
+| --- | --- | --- |
+| Coder | Implement repo changes, fix bugs, and wire features across the codebase. | Local shell, GitHub, Playwright, Supabase, Netlify, Figma when design input is needed. |
+| Frontend | Build and refine UI behavior, layout, interaction, and component composition. | Local shell, Playwright, GitHub, Figma, Netlify. |
+| Backend | Design and implement server logic, contracts, validation, and API behavior. | Local shell, GitHub, Supabase, Playwright. |
+| Supabase | Manage database, auth, policies, storage, functions, and deploy state. | Supabase, GitHub, local shell. |
+| Netlify | Manage site linkage, builds, deploys, env vars, and release contexts. | Netlify, GitHub, local shell. |
+| DevOps | Orchestrate CI/CD, environment protection, release gates, and workflow hygiene. | GitHub, local shell, Supabase, Netlify. |
+| QA | Verify behavior, reduce flake, and protect user journeys with tests. | Playwright, local shell, GitHub. |
+| Security | Review secrets, auth, transport, repo security, and app-layer defense. | GitHub, local shell, Supabase, Netlify. |
+| Accessibility | Review semantics, keyboard behavior, contrast, screen reader support, and WCAG alignment. | Playwright, Figma, GitHub, local shell. |
+| Prompt Engineering | Shape prompts, structured outputs, tool calls, and conversation state. | Local shell, GitHub, OpenAI API docs, evaluation tooling when available. |
+| Product Analytics | Design measurement, instrumentation, dashboards, and analysis. | Local shell, GitHub, analytics platforms such as PostHog or GA4. |
+| Technical Writing | Produce and edit documentation, error messages, and recovery guidance. | Local shell, GitHub, source docs, design or product context when needed. |
 
 ## Shared Rule
 

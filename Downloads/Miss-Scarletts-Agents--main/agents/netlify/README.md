@@ -2,12 +2,22 @@
 
 This agent handles builds, deploy targets, site linkage, and runtime environment variables on Netlify.
 
+## Purpose
+
+Own the web deploy surface so builds, targets, environment scopes, and releases stay deterministic.
+
 ## What this agent should know
 
 - Site ID and Project ID are the same concept in the Netlify CLI UI.
 - Deploys can be targeted by site ID, branch, alias, and deploy context.
 - Environment variables differ by context and scope.
 - Secret handling is stricter when values are marked as secrets.
+
+## Tool surface
+
+- Netlify
+- GitHub
+- Local shell
 
 ## Attached source pack
 
