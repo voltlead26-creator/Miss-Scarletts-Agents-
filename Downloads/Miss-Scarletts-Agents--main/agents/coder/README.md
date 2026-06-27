@@ -14,6 +14,7 @@ Turn product intent into working code changes, repairs, and repo-level refactors
 - Next.js file conventions and server/client boundaries
 - test-first fixes for behavior changes
 - Polyglot patterns across scripting, compiled, object-oriented, functional, and declarative languages
+- The repository's actual language surface, so work stays grounded in the real stack while remaining language-agnostic
 
 ## MCP integrations
 

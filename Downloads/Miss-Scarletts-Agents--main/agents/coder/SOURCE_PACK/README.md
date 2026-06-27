@@ -9,6 +9,7 @@ This pack is the working reference for the Coder agent. It is organized as an in
 - [00_Fundamentals.md](./00_Fundamentals.md)
 - [01_TypeScript.md](./01_TypeScript.md)
 - [11_Polyglot_Language_Families.md](./11_Polyglot_Language_Families.md)
+- [13_Repo_Language_Surface.md](./13_Repo_Language_Surface.md)
 
 ### Phase 2: UI and Web Application Patterns
 
