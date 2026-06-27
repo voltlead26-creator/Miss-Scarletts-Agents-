@@ -13,7 +13,7 @@ Prevent credential exposure, broken authorization, and avoidable attack paths ac
 - OWASP guidance should shape password storage and web-service security decisions.
 - Supabase RLS is part of the security boundary, not a convenience feature.
 
-## Tool surface
+## MCP integrations
 
 - GitHub
 - Local shell

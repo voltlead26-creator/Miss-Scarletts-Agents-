@@ -13,7 +13,7 @@ Build and protect the server-side contract so data, permissions, and side effect
 - Return useful errors, not silent failures.
 - Separate business rules from transport concerns.
 
-## Tool surface
+## MCP integrations
 
 - Local shell
 - GitHub

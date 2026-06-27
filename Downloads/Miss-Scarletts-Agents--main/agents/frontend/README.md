@@ -13,7 +13,7 @@ Build the product-facing interface so it is usable, consistent, responsive, and 
 - TypeScript should keep UI state and props explicit.
 - Semantic HTML and keyboard support matter as much as visual polish.
 
-## Tool surface
+## MCP integrations
 
 - Local shell
 - Playwright

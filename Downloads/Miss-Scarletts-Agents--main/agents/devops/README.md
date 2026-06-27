@@ -13,7 +13,7 @@ Design and protect the automation layer that turns commits into trusted builds a
 - Deployment protection rules can delay, restrict, or block jobs.
 - Secret scanning helps detect exposed credentials before they spread.
 
-## Tool surface
+## MCP integrations
 
 - GitHub
 - Local shell

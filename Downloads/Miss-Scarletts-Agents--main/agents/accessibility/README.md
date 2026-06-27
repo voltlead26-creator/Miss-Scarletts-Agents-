@@ -13,7 +13,7 @@ Make the product usable with keyboard, assistive technology, and non-visual inte
 - Semantic HTML gives the browser built-in accessibility hooks.
 - Accessible content needs keyboard support, labels, and sensible reading order.
 
-## Tool surface
+## MCP integrations
 
 - Playwright
 - Figma

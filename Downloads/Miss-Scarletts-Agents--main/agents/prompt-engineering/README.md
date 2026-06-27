@@ -13,7 +13,7 @@ Shape model instructions and tool flows so the system produces stable, context-a
 - Conversation state and context management matter when the agent must remember prior evidence.
 - Safety and production guidance should be explicit, not implied.
 
-## Tool surface
+## MCP integrations
 
 - OpenAI API docs and evaluation tooling
 - Local shell

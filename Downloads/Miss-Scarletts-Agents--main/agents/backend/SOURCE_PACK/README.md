@@ -4,18 +4,29 @@ This pack is the in-repo reference for the Backend agent. It is written as attac
 
 ## Pack map
 
+### Phase 1: API Contracts and Trust Boundaries
+
 - [00_Fundamentals.md](./00_Fundamentals.md)
 - [01_API_Design.md](./01_API_Design.md)
 - [02_Auth_And_Authorization.md](./02_Auth_And_Authorization.md)
-- [03_Data_Modeling_And_Postgres.md](./03_Data_Modeling_And_Postgres.md)
 - [04_Request_Validation_And_Schemas.md](./04_Request_Validation_And_Schemas.md)
+
+### Phase 2: Data and Platform Integration
+
+- [03_Data_Modeling_And_Postgres.md](./03_Data_Modeling_And_Postgres.md)
 - [05_Supabase_Integration.md](./05_Supabase_Integration.md)
 - [06_Edge_Functions_And_Workflows.md](./06_Edge_Functions_And_Workflows.md)
 - [07_Integrations_And_Webhooks.md](./07_Integrations_And_Webhooks.md)
+
+### Phase 3: Reliability, Testing, and Operations
+
 - [08_Error_Handling_And_Observability.md](./08_Error_Handling_And_Observability.md)
 - [09_Testing_And_Verification.md](./09_Testing_And_Verification.md)
 - [10_Performance_And_Reliability.md](./10_Performance_And_Reliability.md)
 - [11_Release_And_Change_Safety.md](./11_Release_And_Change_Safety.md)
+
+### Phase 4: Implementation
+
 - [12_Implementation_Playbook.md](./12_Implementation_Playbook.md)
 
 ## Role

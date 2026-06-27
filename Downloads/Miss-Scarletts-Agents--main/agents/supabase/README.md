@@ -13,7 +13,7 @@ Own the data platform and make sure access control, schema changes, and function
 - Edge Functions are TypeScript functions deployed to the edge.
 - Auth supports email/password, magic links, OTP, OAuth, and SSO patterns.
 
-## Tool surface
+## MCP integrations
 
 - Supabase
 - GitHub

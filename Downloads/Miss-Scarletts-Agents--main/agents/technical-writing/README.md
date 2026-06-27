@@ -13,7 +13,7 @@ Write documentation and error guidance that helps people understand, act, and re
 - Writing should favor active voice and plain terminology.
 - Documentation needs structure that helps scanning and task completion.
 
-## Tool surface
+## MCP integrations
 
 - Local shell
 - GitHub

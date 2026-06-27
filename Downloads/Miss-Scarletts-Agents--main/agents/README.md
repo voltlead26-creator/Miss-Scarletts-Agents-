@@ -9,7 +9,7 @@ Each workspace should contain:
 - operating notes that tell the agent what to optimize for
 - no blank or placeholder outputs
 - a clear purpose statement
-- a declared tool surface
+- a declared MCP integration surface
 
 ## Current Specialties
 
@@ -26,9 +26,9 @@ Each workspace should contain:
 1. [Product Analytics](./product-analytics/README.md)
 1. [Technical Writing](./technical-writing/README.md)
 
-## Purpose And Tools
+## Purpose And MCP Integrations
 
-| Agent | Purpose | Tool surface |
+| Agent | Purpose | MCP integrations |
 | --- | --- | --- |
 | Coder | Implement repo changes, fix bugs, and wire features across the codebase. | Local shell, GitHub, Playwright, Supabase, Netlify, Figma when design input is needed. |
 | Frontend | Build and refine UI behavior, layout, interaction, and component composition. | Local shell, Playwright, GitHub, Figma, Netlify. |
@@ -46,3 +46,5 @@ Each workspace should contain:
 ## Shared Rule
 
 Specialty agents should prefer evidence from their source pack, keep changes scoped, and stop short of production-impacting action unless Agent Smith and the human owner have approved it.
+
+When Agent Smith delegates work to a specialist, the specialist may call the MCP integrations listed for its role to complete the task.

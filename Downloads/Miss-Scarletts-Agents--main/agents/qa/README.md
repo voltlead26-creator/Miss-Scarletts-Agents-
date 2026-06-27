@@ -13,7 +13,7 @@ Prove that user-visible behavior works and stays working across changes, browser
 - Good Playwright tests use stable selectors and resilient waits.
 - Flaky timing assumptions should be avoided.
 
-## Tool surface
+## MCP integrations
 
 - Playwright
 - Local shell

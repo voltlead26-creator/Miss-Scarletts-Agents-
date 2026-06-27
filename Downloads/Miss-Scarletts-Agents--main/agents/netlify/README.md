@@ -13,7 +13,7 @@ Own the web deploy surface so builds, targets, environment scopes, and releases 
 - Environment variables differ by context and scope.
 - Secret handling is stricter when values are marked as secrets.
 
-## Tool surface
+## MCP integrations
 
 - Netlify
 - GitHub

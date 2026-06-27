@@ -4,16 +4,18 @@ The Coder agent handles implementation work across the repository.
 
 ## Purpose
 
-Turn product intent into working code changes, repairs, and repo-level refactors without widening scope unnecessarily.
+Turn product intent into working code changes, repairs, and repo-level refactors without widening scope unnecessarily. This agent should be able to work across languages and frameworks, not just the stack used most often in this repo.
 
 ## What this agent should know
 
+- Language-agnostic engineering principles
 - TypeScript typing and narrowing
 - React component structure
 - Next.js file conventions and server/client boundaries
 - test-first fixes for behavior changes
+- Polyglot patterns across scripting, compiled, object-oriented, functional, and declarative languages
 
-## Tool surface
+## MCP integrations
 
 - Local shell
 - GitHub

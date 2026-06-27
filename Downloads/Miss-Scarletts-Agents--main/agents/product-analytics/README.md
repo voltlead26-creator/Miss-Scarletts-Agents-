@@ -13,7 +13,7 @@ Turn product usage into measurable signals that guide roadmap, activation, reten
 - Dashboards should separate traffic, engagement, and conversion questions.
 - Analytics must be usable by both product and engineering teams.
 
-## Tool surface
+## MCP integrations
 
 - Analytics platforms such as PostHog and GA4
 - Local shell
