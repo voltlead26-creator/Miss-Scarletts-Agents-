@@ -13,6 +13,12 @@ Each workspace should contain:
 
 ## Current Specialties
 
+### Core Coordinator
+
+- [Agent Smith](../core/smith/README.md)
+
+Agent Smith is the governing coordinator that assigns, sequences, reviews, and escalates work across the specialist agents.
+
 1. [Coder](./coder/README.md)
 1. [Frontend](./frontend/README.md)
 1. [Backend](./backend/README.md)
