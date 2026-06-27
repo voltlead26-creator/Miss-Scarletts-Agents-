@@ -4,6 +4,7 @@ This pack is the in-repo reference for the Backend agent. It is written as attac
 
 ## Pack map
 
+- [00_Fundamentals.md](./00_Fundamentals.md)
 - [01_API_Design.md](./01_API_Design.md)
 - [02_Auth_And_Authorization.md](./02_Auth_And_Authorization.md)
 - [03_Data_Modeling_And_Postgres.md](./03_Data_Modeling_And_Postgres.md)
