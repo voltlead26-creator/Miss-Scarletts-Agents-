@@ -1,61 +1,57 @@
-# Miss Scarlett's Agents — Control Room
+# Miss Scarlett's Agents
 
-A live control room for **Agent Smith** and twelve specialist extensions,
-powered by the Anthropic API. Smith orchestrates work over a Node +
-WebSocket backend, and the React frontend listens for live transcript,
-status, and workflow events.
+A live control room for Agent Smith and a specialist agent roster.
+The frontend is a fixed-screen, brain-first interface with Smith's central
+reactor in the middle, specialist brains in the side pods, and chat-driven
+coordination through the Netlify Functions backend.
 
-## How it works
+## What it does
 
-- The owner talks to **Agent Smith only**, in chat.
-- Smith has one tool, `consult_agent`. Calling it runs a second Claude call
-  using the target specialist's `agents/<id>.README.md` as the system
-  prompt, and returns that specialist's findings to Smith as plain text.
-- Specialists never talk to the owner directly — they are extensions of
-  Smith, not separate participants. Smith reads what they return and
-  decides what to tell the owner.
-- Work touching Supabase, Netlify, DevOps/CI, or Security always pauses for
-  the owner's approval before Smith treats it as final, regardless of what
-  Smith itself flags.
-- Editing a specialist's behavior means editing its README file in
-  `agents/` — no code change, no restart required. The file is read fresh
-  on every call.
+- You talk to Agent Smith in chat.
+- Smith analyzes the request, clarifies the goal, and delegates work to the
+  best specialist agent.
+- Specialist activity is streamed back into the UI as live transcripts.
+- External work affecting GitHub, Supabase, or Netlify pauses for Smith
+  review and signoff before it is finalized.
+- The page is non-scrollable by default. The brain scene is the primary view.
 
-## Run it
-
-Prerequisite: Node.js 22+ if you want to run the TypeScript server directly.
+## Local development
 
 1. `npm install`
-2. Copy `.env.example` to `.env` and add your `ANTHROPIC_API_KEY`
-   (get one at https://console.anthropic.com).
-3. `npm run dev` — starts the Node + WebSocket backend on `http://localhost:3001`
-   by default.
-4. `npm run build` — produces the static frontend in `dist/`.
-5. `npm run start` — runs the built app with the same Node backend entrypoint.
+2. Copy `.env.example` to `.env` and set `ANTHROPIC_API_KEY`.
+3. `npm run dev`
+
+That starts:
+
+- the Vite frontend
+- the local Netlify Functions server
+
+## Build
+
+- `npm run build`
+- `npm run lint`
 
 ## Netlify deployment
 
-Netlify should host the built frontend only. The live backend still needs a
-separate Node/WebSocket host.
+Netlify hosts the frontend and the functions together. No separate backend
+host is required for the current architecture.
 
-Set these frontend environment variables at build time:
+Set your production environment variables in Netlify, especially:
 
-- `VITE_API_ORIGIN` for HTTP calls
-- `VITE_WS_ORIGIN` for WebSocket calls
+- `ANTHROPIC_API_KEY`
+- `SMITH_MODEL`
+- `SPECIALIST_MODEL`
+- `MAX_TOKENS`
 
-If the backend is on the same origin, leave both blank.
+`netlify.toml` is configured to build `dist/` and route `/api/*` into the
+Netlify Functions handler.
 
-`netlify.toml` is configured to publish `dist/` and route all paths to
-`/app.html`, which is the Vite entrypoint for the frontend.
+## Structure
 
-## Repo layout
-
-- `server.ts` — Express + WebSocket server, Smith's orchestration loop.
-- `agents/*.README.md` — one file per agent. This *is* the system prompt.
-- `src/types.ts` — shared types between server and (future) frontend.
-- `src/App.tsx`, `src/hooks/useAgentSystem.ts` — the interactive frontend
-  wired to the Node/WebSocket backend.
-- `scripts/generate_agent_readmes.py` — regenerates the specialist README
-  files from canonical profile data if you want to bulk-edit knowledge
-  themes instead of hand-editing 12 files.
-- `scripts/test_chat_client.mjs` — minimal WebSocket test client.
+- `netlify/functions/api.ts` - Netlify Functions handler for chat, status,
+  approval, and agent metadata.
+- `src/App.tsx` - fixed layout shell with Smith brain centered and agents in
+  side pods.
+- `src/hooks/useAgentSystem.ts` - client state and streaming API adapter.
+- `src/components/Brain.tsx` - animated 3D brain rendering.
+- `src/agentRegistry.ts` - shared agent roster and prompt guides.

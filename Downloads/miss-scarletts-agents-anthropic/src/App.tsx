@@ -78,7 +78,7 @@ export default function App() {
           ))}
         </svg>
 
-        <div className="relative z-10 flex flex-col items-start justify-center gap-3 overflow-visible">
+        <div className="relative z-10 flex min-h-0 flex-col items-start justify-center gap-2 overflow-hidden">
           {leftAgents.map((meta) => (
             <AgentPod
               key={meta.id}
@@ -96,7 +96,7 @@ export default function App() {
           <SmithConsole status={smithStatus} messages={messages} onSend={sendMessage} />
         </div>
 
-        <div className="relative z-10 flex flex-col items-end justify-center gap-3 overflow-visible">
+        <div className="relative z-10 flex min-h-0 flex-col items-end justify-center gap-2 overflow-hidden">
           {rightAgents.map((meta) => (
             <AgentPod
               key={meta.id}

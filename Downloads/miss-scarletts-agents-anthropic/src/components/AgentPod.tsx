@@ -38,7 +38,7 @@ export default function AgentPod({ meta, Icon, runtime, side, pendingStep, onRes
       <button
         type="button"
         onClick={() => setExpanded((v) => !v)}
-        className={`relative w-36 shrink-0 rounded-lg border px-2.5 py-1.5 text-left transition ${
+        className={`relative w-28 shrink-0 rounded-lg border px-2 py-1 text-left transition ${
           side === 'right' ? '-mr-1' : '-ml-1'
         }`}
         style={{ borderColor: `${color}55`, backgroundColor: 'rgba(2,6,23,0.85)' }}
@@ -56,12 +56,12 @@ export default function AgentPod({ meta, Icon, runtime, side, pendingStep, onRes
             right: side === 'right' ? -4 : undefined,
           }}
         />
-        <div className="text-[11px] font-semibold text-slate-200">{meta.name}</div>
-        <div className="text-[9px] uppercase tracking-wide" style={{ color }}>
+        <div className="text-[10px] font-semibold text-slate-200">{meta.name}</div>
+        <div className="text-[8px] uppercase tracking-wide" style={{ color }}>
           {STATUS_LABEL[runtime.status]}
         </div>
         {preview && (
-          <p className="mt-0.5 truncate text-[10px] text-slate-500">{preview}</p>
+          <p className="mt-0.5 truncate text-[9px] text-slate-500">{preview}</p>
         )}
       </button>
 

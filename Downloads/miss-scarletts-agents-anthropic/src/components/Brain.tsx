@@ -14,7 +14,7 @@ interface BrainProps {
 const DIMENSIONS = {
   xl: { box: 640, icon: 0, badge: 34, badgeIcon: 16, tick: 10 },
   lg: { box: 176, icon: 96, badge: 30, badgeIcon: 16, tick: 9 },
-  sm: { box: 80, icon: 44, badge: 20, badgeIcon: 11, tick: 5 },
+  sm: { box: 66, icon: 36, badge: 16, badgeIcon: 9, tick: 4 },
 };
 
 const SPIN_DURATION: Record<AgentStatus, string> = {

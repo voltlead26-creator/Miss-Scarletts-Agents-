@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { X, ChevronDown, RefreshCw } from 'lucide-react';
 import type { AgentMeta, Workflow } from '../types';
+import { apiUrl } from '../lib/api';
 
 interface MenuDrawerProps {
   open: boolean;
@@ -23,7 +24,7 @@ function ReadmeAccordion({ agent }: { agent: AgentMeta }) {
     }
     setLoading(true);
     try {
-      const res = await fetch(`/api/agents/${agent.id}/readme`);
+      const res = await fetch(apiUrl(`/api/agents/${agent.id}/readme`));
       setOpenText(await res.text());
     } catch {
       setOpenText('Could not load this README.');
@@ -56,7 +57,7 @@ export default function MenuDrawer({ open, onClose, agents, workflow, connected 
 
   useEffect(() => {
     if (open && tab === 'status') {
-      fetch('/api/status').then((r) => r.json()).then(setStatus).catch(() => setStatus(null));
+      fetch(apiUrl('/api/status')).then((r) => r.json()).then(setStatus).catch(() => setStatus(null));
     }
   }, [open, tab]);
 
@@ -130,7 +131,7 @@ export default function MenuDrawer({ open, onClose, agents, workflow, connected 
           {tab === 'status' && (
             <div className="space-y-3 text-sm">
               <div className="flex items-center justify-between rounded-md border border-slate-800 p-3">
-                <span className="text-slate-400">WebSocket</span>
+                <span className="text-slate-400">Live API</span>
                 <span className={connected ? 'text-emerald-400' : 'text-rose-400'}>
                   {connected ? 'Connected' : 'Disconnected'}
                 </span>
@@ -154,7 +155,7 @@ export default function MenuDrawer({ open, onClose, agents, workflow, connected 
                 </>
               )}
               <button
-                onClick={() => fetch('/api/status').then((r) => r.json()).then(setStatus)}
+                onClick={() => fetch(apiUrl('/api/status')).then((r) => r.json()).then(setStatus)}
                 className="flex items-center gap-1.5 text-xs text-slate-500 hover:text-slate-300"
               >
                 <RefreshCw size={12} /> Refresh

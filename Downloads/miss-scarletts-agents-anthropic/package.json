@@ -4,10 +4,12 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
-    "dev": "node --experimental-transform-types server.ts",
+    "dev": "concurrently -k -n web,func \"npm run dev:client\" \"npm run dev:functions\"",
+    "dev:client": "VITE_API_ORIGIN=http://127.0.0.1:8889 vite --port 3000 --host 0.0.0.0",
+    "dev:functions": "npx netlify functions:serve --functions netlify/functions --port 8889",
     "build": "vite build",
-    "start": "NODE_ENV=production node --experimental-transform-types server.ts",
-    "preview": "NODE_ENV=production node --experimental-transform-types server.ts",
+    "start": "npm run dev",
+    "preview": "npm run dev",
     "lint": "tsc --noEmit"
   },
   "dependencies": {
@@ -19,8 +21,8 @@
     "lucide-react": "^0.546.0",
     "react": "^19.0.1",
     "react-dom": "^19.0.1",
-    "three": "^0.179.1",
     "tailwindcss": "^4.1.14",
+    "three": "^0.179.1",
     "vite": "^6.2.3",
     "ws": "^8.18.0"
   },
@@ -30,6 +32,7 @@
     "@types/react": "^19.0.10",
     "@types/react-dom": "^19.0.4",
     "@types/ws": "^8.5.13",
+    "concurrently": "^10.0.3",
     "typescript": "~5.8.2"
   }
 }
