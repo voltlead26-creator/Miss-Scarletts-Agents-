@@ -54,7 +54,7 @@ export default function App() {
       <header className="flex items-center justify-between border-b border-slate-800/80 px-4 py-2">
         <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-cyan-200/70">
           <span className={`h-1.5 w-1.5 rounded-full ${connected ? 'bg-emerald-400' : 'bg-rose-500'}`} />
-          Miss Scarlett's Agents
+          Charlie's Agents
         </div>
         <button
           onClick={() => setMenuOpen(true)}
