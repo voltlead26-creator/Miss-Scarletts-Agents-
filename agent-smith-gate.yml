@@ -1,0 +1,53 @@
+name: Agent Smith Approval Gate
+
+on:
+  pull_request_target:
+    branches: [main]
+    types: [opened, synchronize, reopened, ready_for_review]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  agent-smith-review:
+    name: Agent Smith Assessment
+    runs-on: ubuntu-latest
+    outputs:
+      summary: ${{ steps.summarize.outputs.summary }}
+    steps:
+      - name: Checkout pull request
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Summarise proposed change
+        id: summarize
+        shell: bash
+        run: |
+          summary="Agent Smith review required: verify this change aligns with the SRS, protects user data, reduces confusion, and does not bypass human approval."
+          echo "summary=$summary" >> "$GITHUB_OUTPUT"
+
+      - name: Post review reminder
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const summary = `${{ steps.summarize.outputs.summary }}`;
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: `## Agent Smith Review Gate\n\n${summary}\n\nBefore merge, confirm:\n\n- SRS alignment\n- no blank or placeholder document output risk\n- no exposed secrets\n- no confusing UX regression\n- no feature creep\n- human owner approval for production-impacting changes`
+            });
+
+  human-approval-gate:
+    name: Human Approval Boundary
+    needs: agent-smith-review
+    runs-on: ubuntu-latest
+    environment:
+      name: Production_Owner_Approval
+    steps:
+      - name: Confirm approval boundary
+        run: |
+          echo "Human owner approval boundary reached."
+          echo "Summary: ${{ needs.agent-smith-review.outputs.summary }}"
