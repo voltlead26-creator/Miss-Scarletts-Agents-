@@ -267,6 +267,9 @@ function CoreBrainScene({ accent, status }: { accent: string; status: AgentStatu
     ring2.rotation.z = -Math.PI / 7;
     brainGroup.add(ring1, ring2);
 
+    const ring1Base = ring1.rotation.clone();
+    const ring2Base = ring2.rotation.clone();
+
     const lights = [
       new THREE.HemisphereLight(0xe0f7ff, 0x020617, 2.4),
       new THREE.DirectionalLight(new THREE.Color(color), 3.1),
@@ -298,11 +301,19 @@ function CoreBrainScene({ accent, status }: { accent: string; status: AgentStatu
     const loop = (time: number) => {
       const elapsed = (time - start) / 1000;
       const pulse = 1 + Math.sin(elapsed * 2.1) * 0.045;
+      const ringSpin = elapsed * 0.1;
+      const ringSpinInner = elapsed * 0.075;
 
       brainGroup.rotation.y = 0;
       brainGroup.rotation.x = 0;
       brainGroup.rotation.z = 0;
       brainGroup.scale.setScalar(pulse);
+      ring1.rotation.x = ring1Base.x;
+      ring1.rotation.y = ringSpin;
+      ring1.rotation.z = ring1Base.z;
+      ring2.rotation.x = ring2Base.x;
+      ring2.rotation.y = -ringSpinInner;
+      ring2.rotation.z = ring2Base.z;
 
       if (status === 'speaking') {
         coreMesh.scale.setScalar(1.12 + Math.sin(elapsed * 5) * 0.05);
