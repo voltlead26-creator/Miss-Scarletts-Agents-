@@ -19,7 +19,7 @@ const STATUS_LABEL: Record<AgentStatus, string> = {
 
 export default function SmithConsole({ status, messages, onSend }: SmithConsoleProps) {
   const [draft, setDraft] = useState('');
-  const [transcriptOpen, setTranscriptOpen] = useState(false);
+  const [transcriptOpen, setTranscriptOpen] = useState(true);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -62,7 +62,7 @@ export default function SmithConsole({ status, messages, onSend }: SmithConsoleP
         {transcriptOpen && (
           <div
             ref={scrollRef}
-            className="flex w-full max-w-xl max-h-[28vh] flex-col gap-3 overflow-y-auto rounded-2xl border border-slate-800 bg-slate-950/88 px-3 py-3 backdrop-blur"
+            className="flex w-full max-w-xl max-h-[30vh] min-h-[112px] flex-col gap-3 overflow-y-auto rounded-xl border border-cyan-500/20 bg-slate-950/88 px-3 py-3 shadow-[0_0_32px_rgba(34,211,238,0.08)] backdrop-blur"
           >
             {messages.length === 0 && (
               <p className="mt-1 text-center text-sm text-slate-500">
@@ -81,6 +81,12 @@ export default function SmithConsole({ status, messages, onSend }: SmithConsoleP
                 {m.content}
               </div>
             ))}
+            {status === 'thinking' && (
+              <div className="max-w-[85%] self-start rounded-lg border border-cyan-500/20 bg-cyan-500/5 px-3 py-2 text-sm leading-6 text-cyan-100">
+                Smith is analysing intent and selecting the right specialist agents
+                <span className="ml-1 inline-block h-3 w-1.5 animate-pulse bg-cyan-300 align-middle" />
+              </div>
+            )}
           </div>
         )}
 
