@@ -64,7 +64,7 @@ export default function App() {
         </button>
       </header>
 
-      <main className="relative grid min-h-0 flex-1 grid-cols-[minmax(190px,230px)_minmax(0,1.95fr)_minmax(190px,230px)] gap-2 overflow-hidden px-3 py-4">
+      <main className="relative grid min-h-0 flex-1 grid-cols-[minmax(168px,208px)_minmax(0,2.25fr)_minmax(168px,208px)] gap-2 overflow-hidden px-3 py-4">
         <svg
           className="pointer-events-none absolute inset-0 h-full w-full opacity-[0.07]"
           preserveAspectRatio="none"

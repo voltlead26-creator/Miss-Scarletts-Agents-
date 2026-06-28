@@ -12,7 +12,7 @@ interface BrainProps {
 }
 
 const DIMENSIONS = {
-  xl: { box: 640, icon: 0, badge: 34, badgeIcon: 16, tick: 10 },
+  xl: { box: 'clamp(560px, 68vmin, 860px)', icon: 0, badge: 34, badgeIcon: 16, tick: 10 },
   lg: { box: 176, icon: 96, badge: 30, badgeIcon: 16, tick: 9 },
   sm: { box: 66, icon: 36, badge: 16, badgeIcon: 9, tick: 4 },
 };
@@ -282,7 +282,7 @@ function CoreBrainScene({ accent, status }: { accent: string; status: AgentStatu
   return (
     <div
       ref={hostRef}
-      className="absolute inset-[8%] rounded-full pointer-events-none"
+      className="absolute inset-[5%] rounded-full pointer-events-none"
       style={{
         background:
           'radial-gradient(circle at 50% 42%, rgba(248,250,252,0.05), rgba(2,6,23,0) 35%), radial-gradient(circle at 50% 58%, rgba(34,211,238,0.12), rgba(2,6,23,0.08) 56%, rgba(2,6,23,0) 74%)',
@@ -577,6 +577,7 @@ export default function Brain({ size, accent, BadgeIcon, status, variant = 'agen
   const reducedMotion = useReducedMotion();
   const color = status === 'blocked' ? '#f59e0b' : accent;
   const animate = !reducedMotion;
+  const boxSize = typeof d.box === 'number' ? d.box : 640;
 
   if (variant === 'core') {
     return (
@@ -627,16 +628,16 @@ export default function Brain({ size, accent, BadgeIcon, status, variant = 'agen
           <div
             key={deg}
             className="absolute"
-            style={{
-              width: 2,
-              height: d.tick,
-              backgroundColor: `${color}90`,
-              top: -2,
-              left: d.box / 2 - 1,
-              transformOrigin: `1px ${d.box / 2 + 2}px`,
-              transform: `rotate(${deg}deg)`,
-            }}
-          />
+              style={{
+                width: 2,
+                height: d.tick,
+                backgroundColor: `${color}90`,
+                top: -2,
+                left: boxSize / 2 - 1,
+                transformOrigin: `1px ${boxSize / 2 + 2}px`,
+                transform: `rotate(${deg}deg)`,
+              }}
+            />
         ))}
       </div>
 
