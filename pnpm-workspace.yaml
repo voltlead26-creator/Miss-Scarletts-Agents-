@@ -1,0 +1,10 @@
+packages:
+  - "core/smith"
+  - "agents/*"
+  - "apps/*"
+  - "functions/*"
+
+catalog:
+  next: "^15.1.0"
+  react: "^19.0.0"
+  typescript: "^5.7.2"
