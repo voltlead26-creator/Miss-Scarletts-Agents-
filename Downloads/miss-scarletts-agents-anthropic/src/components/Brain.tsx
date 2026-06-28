@@ -77,60 +77,107 @@ function CoreBrainScene({ accent, status }: { accent: string; status: AgentStatu
     const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true, powerPreference: 'high-performance' });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.setClearColor(0x000000, 0);
+    renderer.localClippingEnabled = true;
     host.appendChild(renderer.domElement);
 
     const brainGroup = new THREE.Group();
     scene.add(brainGroup);
 
-    const brainGeo = new THREE.SphereGeometry(1.95, 96, 72);
-    deformBrainGeometry(brainGeo);
+    const organicGeo = new THREE.SphereGeometry(1.96, 96, 72, 0, Math.PI);
+    const mechanicalGeo = new THREE.SphereGeometry(1.96, 96, 72, Math.PI, Math.PI);
+    deformBrainGeometry(organicGeo);
+    deformBrainGeometry(mechanicalGeo);
 
-    const shellGeo = brainGeo.clone();
-    shellGeo.scale(1.03, 1.03, 1.03);
+    const organicShellGeo = organicGeo.clone();
+    organicShellGeo.scale(1.03, 1.03, 1.03);
+    const mechanicalShellGeo = mechanicalGeo.clone();
+    mechanicalShellGeo.scale(1.03, 1.03, 1.03);
 
-    const coreGeo = new THREE.SphereGeometry(0.82, 64, 48);
-
-    const mainMaterial = new THREE.MeshPhysicalMaterial({
-      color: new THREE.Color(color),
-      roughness: 0.26,
-      metalness: 0.05,
-      clearcoat: 1,
-      clearcoatRoughness: 0.12,
-      transmission: 0.2,
-      thickness: 1.2,
+    const organicMaterial = new THREE.MeshPhysicalMaterial({
+      color: new THREE.Color('#c76d79'),
+      roughness: 0.5,
+      metalness: 0.02,
+      clearcoat: 0.45,
+      clearcoatRoughness: 0.2,
+      transmission: 0.18,
+      thickness: 0.9,
       transparent: true,
-      opacity: 0.95,
-      emissive: new THREE.Color(color),
-      emissiveIntensity: 0.15,
+      opacity: 0.96,
+      emissive: new THREE.Color('#ff8ea0'),
+      emissiveIntensity: 0.22,
     });
 
-    const shellMaterial = new THREE.MeshPhysicalMaterial({
-      color: new THREE.Color(color).multiplyScalar(0.7),
-      roughness: 0.12,
-      metalness: 0.18,
+    const organicShellMaterial = new THREE.MeshPhysicalMaterial({
+      color: new THREE.Color('#f3b1ba'),
+      roughness: 0.2,
+      metalness: 0.04,
       transparent: true,
-      opacity: 0.22,
-      transmission: 0.68,
-      thickness: 1.8,
+      opacity: 0.2,
+      transmission: 0.5,
+      thickness: 1.2,
+      emissive: new THREE.Color('#f97383'),
+      emissiveIntensity: 0.1,
+    });
+
+    const mechanicalMaterial = new THREE.MeshPhysicalMaterial({
+      color: new THREE.Color('#64748b'),
+      roughness: 0.16,
+      metalness: 0.9,
+      clearcoat: 1,
+      clearcoatRoughness: 0.08,
+      transparent: true,
+      opacity: 0.96,
+      emissive: new THREE.Color(color),
+      emissiveIntensity: 0.12,
+    });
+
+    const mechanicalShellMaterial = new THREE.MeshPhysicalMaterial({
+      color: new THREE.Color('#94a3b8'),
+      roughness: 0.08,
+      metalness: 1,
+      transparent: true,
+      opacity: 0.18,
+      transmission: 0.1,
+      thickness: 0.8,
       emissive: new THREE.Color(color),
       emissiveIntensity: 0.08,
     });
 
+    const organicMesh = new THREE.Mesh(organicGeo, organicMaterial);
+    const organicShell = new THREE.Mesh(organicShellGeo, organicShellMaterial);
+    const mechanicalMesh = new THREE.Mesh(mechanicalGeo, mechanicalMaterial);
+    const mechanicalShell = new THREE.Mesh(mechanicalShellGeo, mechanicalShellMaterial);
+
+    const jointBandGeo = new THREE.TorusGeometry(1.56, 0.08, 12, 180);
+    const jointBand = new THREE.Mesh(
+      jointBandGeo,
+      new THREE.MeshStandardMaterial({
+        color: new THREE.Color(color),
+        emissive: new THREE.Color(color),
+        emissiveIntensity: 0.42,
+        metalness: 0.72,
+        roughness: 0.22,
+        transparent: true,
+        opacity: 0.86,
+      })
+    );
+    jointBand.rotation.x = Math.PI / 2.7;
+    jointBand.rotation.z = Math.PI / 16;
+
+    const coreGeo = new THREE.SphereGeometry(0.82, 64, 48);
     const coreMaterial = new THREE.MeshStandardMaterial({
       color: '#dff8ff',
       emissive: new THREE.Color(color),
-      emissiveIntensity: 1.3,
-      roughness: 0.2,
+      emissiveIntensity: 1.35,
+      roughness: 0.18,
       metalness: 0.0,
       transparent: true,
-      opacity: 0.95,
+      opacity: 0.96,
     });
 
-    const brainMesh = new THREE.Mesh(brainGeo, mainMaterial);
-    const shellMesh = new THREE.Mesh(shellGeo, shellMaterial);
     const coreMesh = new THREE.Mesh(coreGeo, coreMaterial);
-    coreMesh.position.set(0, -0.03, 0.06);
-    brainGroup.add(brainMesh, shellMesh, coreMesh);
+    coreMesh.position.set(0.02, -0.03, 0.08);
+    brainGroup.add(organicMesh, organicShell, mechanicalMesh, mechanicalShell, jointBand, coreMesh);
 
     const ridgeMaterial = new THREE.LineBasicMaterial({
       color: new THREE.Color(color),
@@ -186,6 +233,25 @@ function CoreBrainScene({ accent, status }: { accent: string; status: AgentStatu
       brainGroup.add(line);
     });
 
+    const circuitMaterial = new THREE.LineBasicMaterial({
+      color: new THREE.Color(color),
+      transparent: true,
+      opacity: 0.55,
+    });
+    const circuitCurves = [
+      [[0.18, 1.18, 0.42], [0.56, 0.98, 0.34], [0.88, 0.58, 0.3], [1.16, 0.06, 0.3], [1.34, -0.38, 0.22]],
+      [[0.2, 0.4, 0.56], [0.72, 0.34, 0.52], [1.14, 0.12, 0.46], [1.38, -0.14, 0.4]],
+      [[0.36, -0.48, 0.46], [0.72, -0.18, 0.46], [1.16, 0.14, 0.34]],
+    ];
+    circuitCurves.forEach((points, index) => {
+      const curve = new THREE.CatmullRomCurve3(points.map(([x, y, z]) => new THREE.Vector3(x, y, z)));
+      const pts = curve.getPoints(32);
+      const geometry = new THREE.BufferGeometry().setFromPoints(pts);
+      const line = new THREE.Line(geometry, circuitMaterial.clone());
+      line.material.opacity = 0.28 + index * 0.1;
+      brainGroup.add(line);
+    });
+
     const ringMaterial = new THREE.MeshBasicMaterial({
       color: new THREE.Color(color),
       transparent: true,
@@ -231,12 +297,11 @@ function CoreBrainScene({ accent, status }: { accent: string; status: AgentStatu
     let start = performance.now();
     const loop = (time: number) => {
       const elapsed = (time - start) / 1000;
-      const wave = Math.sin(elapsed * 0.9) * 0.14;
-      const pulse = 1 + Math.sin(elapsed * 2.2) * 0.04;
+      const pulse = 1 + Math.sin(elapsed * 2.1) * 0.045;
 
-      brainGroup.rotation.y = elapsed * speed * 0.28;
-      brainGroup.rotation.x = 0.18 + wave;
-      brainGroup.rotation.z = Math.sin(elapsed * 0.5) * 0.05;
+      brainGroup.rotation.y = 0;
+      brainGroup.rotation.x = 0;
+      brainGroup.rotation.z = 0;
       brainGroup.scale.setScalar(pulse);
 
       if (status === 'speaking') {
@@ -262,13 +327,19 @@ function CoreBrainScene({ accent, status }: { accent: string; status: AgentStatu
     return () => {
       window.cancelAnimationFrame(raf);
       ro.disconnect();
-      brainGeo.dispose();
-      shellGeo.dispose();
+      organicGeo.dispose();
+      mechanicalGeo.dispose();
+      organicShellGeo.dispose();
+      mechanicalShellGeo.dispose();
       coreGeo.dispose();
-      brainMesh.material.dispose();
-      shellMesh.material.dispose();
+      jointBandGeo.dispose();
+      organicMaterial.dispose();
+      organicShellMaterial.dispose();
+      mechanicalMaterial.dispose();
+      mechanicalShellMaterial.dispose();
       coreMesh.material.dispose();
       ridgeMaterial.dispose();
+      circuitMaterial.dispose();
       ring1.geometry.dispose();
       ring2.geometry.dispose();
       ring1.material.dispose();
@@ -594,9 +665,8 @@ export default function Brain({ size, accent, BadgeIcon, status, variant = 'agen
         <div
           className="absolute inset-0"
           style={{
-            transform: animate ? 'rotateX(14deg) rotateY(-10deg)' : 'none',
+            transform: 'none',
             transformStyle: 'preserve-3d',
-            animation: animate ? `brainFloat 9s ease-in-out infinite` : undefined,
           }}
         >
           <CoreBrainScene accent={accent} status={status} />
