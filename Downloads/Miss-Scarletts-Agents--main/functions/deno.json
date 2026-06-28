@@ -1,9 +1,0 @@
-{
-  "tasks": {
-    "cache": "deno cache --reload main.ts"
-  },
-  "imports": {
-    "@std/assert": "jsr:@std/assert@^1.0.0"
-  },
-  "lock": "./deno.lock"
-}
