@@ -24,7 +24,9 @@ const STATUS_TUNING: Record<AgentStatus, { glow: number; speed: number; pulse: n
   blocked: { glow: 0.72, speed: 0.62, pulse: 1.7, line: 0.95 },
 };
 
-const NODE_POINTS: Array<[number, number, number]> = [
+const BRAIN_Y_OFFSET = 0.18;
+
+const OUTLINE_POINTS: Array<[number, number, number]> = [
   [-2.6, 0.25, 0.0],
   [-2.25, 0.95, -0.35],
   [-1.75, 1.55, 0.28],
@@ -56,37 +58,103 @@ const NODE_POINTS: Array<[number, number, number]> = [
   [1.78, 0.82, -0.42],
 ];
 
-const LINKS = [
-  [0, 2],
-  [0, 5],
-  [1, 4],
-  [1, 7],
-  [2, 8],
-  [3, 11],
-  [4, 10],
-  [5, 14],
-  [6, 13],
-  [7, 15],
-  [8, 16],
-  [9, 18],
-  [10, 20],
-  [11, 21],
-  [12, 22],
-  [13, 23],
-  [14, 24],
-  [16, 19],
-  [17, 21],
-  [18, 23],
-  [19, 24],
-  [20, 25],
-  [21, 26],
-  [22, 27],
-  [23, 28],
-  [25, 18],
-  [26, 20],
-  [27, 17],
-  [28, 19],
-];
+function seededRandom(seed: number) {
+  const next = Math.sin(seed * 12.9898) * 43758.5453;
+  return next - Math.floor(next);
+}
+
+function createNeuralPoints(): Array<[number, number, number]> {
+  const points: Array<[number, number, number]> = [...OUTLINE_POINTS];
+
+  for (let i = 0; i < 112; i += 1) {
+    const angle = seededRandom(i + 3) * Math.PI * 2;
+    const radius = Math.sqrt(seededRandom(i + 37));
+    const x = Math.cos(angle) * radius * 2.46 + (seededRandom(i + 71) - 0.5) * 0.18;
+    const y = Math.sin(angle) * radius * 1.55 + 0.12 + (seededRandom(i + 109) - 0.5) * 0.16;
+
+    const leftLobeBias = x < -0.18 ? -0.1 : x > 0.4 ? 0.08 : 0;
+    const z = (seededRandom(i + 151) - 0.5) * 0.96 + leftLobeBias;
+    const withinTop = y < 1.96 - Math.abs(x) * 0.16;
+    const withinBottom = y > -1.32 + Math.abs(x) * 0.08;
+    const withinWidth = Math.abs(x) < 2.58 - Math.max(0, -y - 0.1) * 0.3;
+
+    if (withinTop && withinBottom && withinWidth) {
+      points.push([x, y, z]);
+    }
+  }
+
+  return points;
+}
+
+function createNeuralLinks(points: Array<[number, number, number]>) {
+  const links = new Set<string>();
+  const add = (a: number, b: number) => {
+    if (a === b) return;
+    const key = a < b ? `${a}:${b}` : `${b}:${a}`;
+    links.add(key);
+  };
+
+  [
+    [0, 2],
+    [0, 5],
+    [1, 4],
+    [1, 7],
+    [2, 8],
+    [3, 11],
+    [4, 10],
+    [5, 14],
+    [6, 13],
+    [7, 15],
+    [8, 16],
+    [9, 18],
+    [10, 20],
+    [11, 21],
+    [12, 22],
+    [13, 23],
+    [14, 24],
+    [16, 19],
+    [17, 21],
+    [18, 23],
+    [19, 24],
+    [20, 25],
+    [21, 26],
+    [22, 27],
+    [23, 28],
+    [25, 18],
+    [26, 20],
+    [27, 17],
+    [28, 19],
+  ].forEach(([a, b]) => add(a, b));
+
+  points.forEach((point, index) => {
+    const nearest = points
+      .map((candidate, candidateIndex) => {
+        const dx = candidate[0] - point[0];
+        const dy = candidate[1] - point[1];
+        const dz = candidate[2] - point[2];
+        return { candidateIndex, distance: dx * dx + dy * dy + dz * dz * 0.5 };
+      })
+      .filter((item) => item.candidateIndex !== index)
+      .sort((a, b) => a.distance - b.distance)
+      .slice(0, index < 29 ? 5 : 3);
+
+    nearest.forEach((item) => {
+      if (item.distance < 1.35 || seededRandom(index * 31 + item.candidateIndex) > 0.38) {
+        add(index, item.candidateIndex);
+      }
+    });
+
+    if (index > 29 && seededRandom(index + 401) > 0.72) {
+      const cross = 29 + Math.floor(seededRandom(index + 503) * (points.length - 29));
+      add(index, cross);
+    }
+  });
+
+  return Array.from(links).map((key) => key.split(':').map(Number) as [number, number]);
+}
+
+const NODE_POINTS = createNeuralPoints();
+const LINKS = createNeuralLinks(NODE_POINTS);
 
 function hexToRgb(hex: string) {
   const normalized = hex.replace('#', '');
@@ -109,6 +177,31 @@ function makeCurve(points: THREE.Vector3[], segments = 80) {
   return new THREE.BufferGeometry().setFromPoints(new THREE.CatmullRomCurve3(points).getPoints(segments));
 }
 
+function brainVector(point: [number, number, number]) {
+  return new THREE.Vector3(point[0], point[1] + BRAIN_Y_OFFSET, point[2]);
+}
+
+function makeSegmentedOrbitGeometry(radius: number, depthScale: number, segments: number, gapRatio: number) {
+  const positions: number[] = [];
+  const pointsPerSegment = 28;
+
+  for (let segment = 0; segment < segments; segment += 1) {
+    const start = (segment / segments) * Math.PI * 2;
+    const end = ((segment + 1 - gapRatio) / segments) * Math.PI * 2;
+
+    for (let i = 0; i < pointsPerSegment; i += 1) {
+      const a1 = start + ((end - start) * i) / pointsPerSegment;
+      const a2 = start + ((end - start) * (i + 1)) / pointsPerSegment;
+      positions.push(Math.cos(a1) * radius, 0, Math.sin(a1) * radius * depthScale);
+      positions.push(Math.cos(a2) * radius, 0, Math.sin(a2) * radius * depthScale);
+    }
+  }
+
+  const geometry = new THREE.BufferGeometry();
+  geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+  return geometry;
+}
+
 function CoreBrainScene({ status }: { status: AgentStatus }) {
   const mountRef = useRef<HTMLDivElement>(null);
   const statusRef = useRef(status);
@@ -123,7 +216,7 @@ function CoreBrainScene({ status }: { status: AgentStatus }) {
 
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(36, 1, 0.1, 100);
-    camera.position.set(0, 0.35, 9.2);
+    camera.position.set(0, 0.12, 9.2);
 
     const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true, preserveDrawingBuffer: true });
     renderer.setClearColor(0x000000, 0);
@@ -154,7 +247,7 @@ function CoreBrainScene({ status }: { status: AgentStatus }) {
       const texture = new THREE.CanvasTexture(canvas);
       const material = new THREE.SpriteMaterial({ map: texture, transparent: true, depthWrite: false, opacity: 0.5 });
       const sprite = new THREE.Sprite(material);
-      sprite.position.set(0, 0.62, -0.45);
+      sprite.position.set(0, 0.08, -0.45);
       sprite.scale.set(5.8, 3.9, 1);
       brainGroup.add(sprite);
       return { sprite, material };
@@ -163,10 +256,10 @@ function CoreBrainScene({ status }: { status: AgentStatus }) {
     const shellMaterial = new THREE.LineBasicMaterial({ color: electric, transparent: true, opacity: 0.8 });
     const brightMaterial = new THREE.LineBasicMaterial({ color: white, transparent: true, opacity: 0.54 });
     const shellCurves = [
-      makeCurve(NODE_POINTS.slice(0, 16).map(([x, y, z]) => new THREE.Vector3(x, y + 0.72, z)), 120),
-      makeCurve([0, 3, 6, 8, 10, 12, 14, 0].map((i) => new THREE.Vector3(...NODE_POINTS[i]).add(new THREE.Vector3(0, 0.72, 0))), 120),
-      makeCurve([1, 17, 18, 19, 20, 9].map((i) => new THREE.Vector3(...NODE_POINTS[i]).add(new THREE.Vector3(0, 0.72, 0))), 80),
-      makeCurve([15, 24, 23, 22, 21, 10].map((i) => new THREE.Vector3(...NODE_POINTS[i]).add(new THREE.Vector3(0, 0.72, 0))), 80),
+      makeCurve(NODE_POINTS.slice(0, 16).map(brainVector), 120),
+      makeCurve([0, 3, 6, 8, 10, 12, 14, 0].map((i) => brainVector(NODE_POINTS[i])), 120),
+      makeCurve([1, 17, 18, 19, 20, 9].map((i) => brainVector(NODE_POINTS[i])), 80),
+      makeCurve([15, 24, 23, 22, 21, 10].map((i) => brainVector(NODE_POINTS[i])), 80),
     ];
 
     shellCurves.forEach((geometry, index) => {
@@ -179,14 +272,14 @@ function CoreBrainScene({ status }: { status: AgentStatus }) {
     for (const [a, b] of LINKS) {
       const start = NODE_POINTS[a];
       const end = NODE_POINTS[b];
-      linkPositions.push(start[0], start[1] + 0.72, start[2], end[0], end[1] + 0.72, end[2]);
+      linkPositions.push(start[0], start[1] + BRAIN_Y_OFFSET, start[2], end[0], end[1] + BRAIN_Y_OFFSET, end[2]);
     }
     linkGeometry.setAttribute('position', new THREE.Float32BufferAttribute(linkPositions, 3));
     const linkMaterial = new THREE.LineBasicMaterial({ color: electric, transparent: true, opacity: 0.62 });
     brainGroup.add(new THREE.LineSegments(linkGeometry, linkMaterial));
 
     const pointGeometry = new THREE.BufferGeometry().setFromPoints(
-      NODE_POINTS.map(([x, y, z]) => new THREE.Vector3(x, y + 0.72, z))
+      NODE_POINTS.map(brainVector)
     );
     const pointMaterial = new THREE.PointsMaterial({
       color: electric,
@@ -204,23 +297,23 @@ function CoreBrainScene({ status }: { status: AgentStatus }) {
       new THREE.LineBasicMaterial({ color: electric, transparent: true, opacity: 0.48 }),
     ];
 
-    const rings: THREE.Line[] = [];
+    const ringPivots: THREE.Group[] = [];
+    const ringGeometries: THREE.BufferGeometry[] = [];
     [
-      { radius: 3.8, yScale: 0.22, y: -0.95, z: 0.1, material: ringMaterials[0] },
-      { radius: 3.05, yScale: 0.18, y: -0.84, z: 0.15, material: ringMaterials[1] },
-      { radius: 2.18, yScale: 0.14, y: -0.72, z: 0.2, material: ringMaterials[2] },
+      { radius: 4.05, depth: 0.62, y: -0.18, tilt: 1.13, yaw: -0.36, segments: 9, material: ringMaterials[0] },
+      { radius: 3.36, depth: 0.56, y: -0.08, tilt: 1.2, yaw: 0.26, segments: 12, material: ringMaterials[1] },
+      { radius: 2.46, depth: 0.5, y: 0.02, tilt: 1.28, yaw: -0.08, segments: 15, material: ringMaterials[2] },
     ].forEach((ring) => {
-      const points: THREE.Vector3[] = [];
-      for (let i = 0; i <= 256; i += 1) {
-        const angle = (i / 256) * Math.PI * 2;
-        points.push(new THREE.Vector3(Math.cos(angle) * ring.radius, Math.sin(angle) * ring.radius * ring.yScale, ring.z));
-      }
-      const line = new THREE.Line(new THREE.BufferGeometry().setFromPoints(points), ring.material);
-      line.position.y = ring.y;
-      line.rotation.x = -0.22;
-      line.rotation.z = -0.18;
-      ringGroup.add(line);
-      rings.push(line);
+      const pivot = new THREE.Group();
+      const geometry = makeSegmentedOrbitGeometry(ring.radius, ring.depth, ring.segments, 0.28);
+      const line = new THREE.LineSegments(geometry, ring.material);
+      line.rotation.x = ring.tilt;
+      line.rotation.z = ring.yaw;
+      pivot.position.y = ring.y;
+      pivot.add(line);
+      ringGroup.add(pivot);
+      ringPivots.push(pivot);
+      ringGeometries.push(geometry);
     });
 
     const pedestalMaterial = new THREE.LineBasicMaterial({ color: electric, transparent: true, opacity: 0.42 });
@@ -234,7 +327,7 @@ function CoreBrainScene({ status }: { status: AgentStatus }) {
     pedestalGroup.add(new THREE.Line(pedestalGeometry, pedestalMaterial));
     pedestalGroup.add(
       new THREE.Line(
-        new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0, -0.82, 0), new THREE.Vector3(0, -2.22, 0)]),
+        new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0, -0.36, 0), new THREE.Vector3(0, -2.22, 0)]),
         pedestalMaterial
       )
     );
@@ -266,9 +359,9 @@ function CoreBrainScene({ status }: { status: AgentStatus }) {
       pointMaterial.opacity = 0.64 + pulse * 0.34;
       pointMaterial.size = 0.065 + pulse * 0.022;
 
-      rings[0].rotation.z = -0.18 + elapsed * tuning.speed;
-      rings[1].rotation.z = 0.28 - elapsed * tuning.speed * 1.38;
-      rings[2].rotation.z = -0.08 + elapsed * tuning.speed * 1.9;
+      ringPivots[0].rotation.y = elapsed * tuning.speed;
+      ringPivots[1].rotation.y = -elapsed * tuning.speed * 1.32;
+      ringPivots[2].rotation.y = elapsed * tuning.speed * 1.82;
       ringMaterials[0].opacity = 0.5 + glow * 0.32;
       ringMaterials[1].opacity = 0.34 + glow * 0.26;
       ringMaterials[2].opacity = 0.26 + glow * 0.22;
@@ -289,6 +382,7 @@ function CoreBrainScene({ status }: { status: AgentStatus }) {
       linkGeometry.dispose();
       pointGeometry.dispose();
       pedestalGeometry.dispose();
+      ringGeometries.forEach((geometry) => geometry.dispose());
       shellMaterial.dispose();
       brightMaterial.dispose();
       linkMaterial.dispose();
