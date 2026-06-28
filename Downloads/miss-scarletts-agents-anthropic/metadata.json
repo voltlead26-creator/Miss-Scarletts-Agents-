@@ -1,6 +1,0 @@
-{
-  "name": "Miss Scarletts Agent Console",
-  "description": "A local browser-based control room for Agent Smith and the 12 Miss Scarletts specialist agents, with request routing, role summaries, configuration pipeline context, and a static macOS-friendly runtime.",
-  "requestFramePermissions": [],
-  "majorCapabilities": []
-}
