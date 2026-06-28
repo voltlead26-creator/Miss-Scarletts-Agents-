@@ -35,7 +35,7 @@ export default function SmithConsole({ status, messages, onSend }: SmithConsoleP
   return (
     <div className="relative flex h-full min-h-0 items-center justify-center overflow-hidden">
       <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-        <div className="flex h-full min-h-0 w-full items-center justify-center py-1">
+        <div className="flex h-full min-h-0 w-full items-center justify-center py-0">
           <Brain size="xl" variant="core" accent="#22d3ee" BadgeIcon={Shield} status={status} />
         </div>
       </div>
@@ -44,7 +44,7 @@ export default function SmithConsole({ status, messages, onSend }: SmithConsoleP
         {STATUS_LABEL[status]}
       </div>
 
-      <div className="absolute inset-x-0 bottom-0 z-30 flex flex-col items-center gap-2 px-4 pb-3">
+      <div className="absolute inset-x-0 bottom-0 z-30 flex flex-col items-center gap-2 px-4 pb-2">
         <div className="flex w-full max-w-xl items-center justify-between px-2">
           <button
             type="button"
