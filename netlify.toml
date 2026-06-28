@@ -1,5 +1,5 @@
 [build]
-base = "Desktop/miss-scarletts-agents-anthropic"
+base = "miss-scarletts-agents-anthropic"
 command = "npm run build"
 publish = "dist"
 

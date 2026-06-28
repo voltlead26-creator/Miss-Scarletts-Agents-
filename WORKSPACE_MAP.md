@@ -4,7 +4,7 @@
 
 - Git repo: `Miss-Scarletts-Agents-`
 - Branch: `charlies-agents.netlify`
-- App folder: `Desktop/miss-scarletts-agents-anthropic`
+- App folder: `miss-scarletts-agents-anthropic`
 
 ## Notes
 
@@ -15,8 +15,9 @@
 ## Active Path References
 
 - Repo root: `/Users/kaichurch`
-- Current app source tree: `/Users/kaichurch/Downloads/miss-scarletts-agents-anthropic`
+- Current app source tree: `/Users/kaichurch/.worktrees/charlies-agents/miss-scarletts-agents-anthropic`
 - Legacy/duplicate trees may exist under:
+  - `/Users/kaichurch/.worktrees/charlies-agents/legacy/flat-app`
   - `/Users/kaichurch/Downloads/files-3/miss-scarletts-agents-anthropic`
   - `/Users/kaichurch/Downloads/Miss-Scarletts-Agents--main`
   - `/Users/kaichurch/Downloads/jarvis-agent-interface-miss-scarletts`
