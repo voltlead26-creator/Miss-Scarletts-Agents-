@@ -13,7 +13,7 @@ export enum LogLevel {
 export interface LogEntry {
   id: string;
   timestamp: string;
-  source: string; // agent id, or 'SYSTEM' / 'SMITH'
+  source: string; // agent id, or 'SYSTEM' / 'TED'
   message: string;
   level: LogLevel;
 }
@@ -56,7 +56,7 @@ export interface Workflow {
 }
 
 export type AgentId =
-  | 'smith'
+  | 'ted'
   | 'coder'
   | 'frontend'
   | 'backend'
@@ -67,7 +67,6 @@ export type AgentId =
   | 'security'
   | 'accessibility'
   | 'prompt-engineering'
-  | 'marketing'
   | 'product-analytics'
   | 'technical-writing';
 
@@ -83,7 +82,7 @@ export interface AgentMeta {
 
 export interface SystemConfig {
   anthropicApiKey: string;
-  smithModel: string;
+  tedModel: string;
   specialistModel: string;
   maxTokens: number;
 }

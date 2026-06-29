@@ -53,7 +53,7 @@ function ReadmeAccordion({ agent }: { agent: AgentMeta }) {
 
 export default function MenuDrawer({ open, onClose, agents, workflow, connected }: MenuDrawerProps) {
   const [tab, setTab] = useState<Tab>('agents');
-  const [status, setStatus] = useState<{ anthropicConfigured: boolean; smithModel: string; specialistModel: string } | null>(null);
+  const [status, setStatus] = useState<{ anthropicConfigured: boolean; tedModel: string; specialistModel: string } | null>(null);
 
   useEffect(() => {
     if (open && tab === 'status') {
@@ -145,8 +145,8 @@ export default function MenuDrawer({ open, onClose, agents, workflow, connected 
               {status && (
                 <>
                   <div className="flex items-center justify-between rounded-md border border-slate-800 p-3 text-xs">
-                    <span className="text-slate-500">Smith model</span>
-                    <span className="text-slate-300">{status.smithModel}</span>
+                    <span className="text-slate-500">TED model</span>
+                    <span className="text-slate-300">{status.tedModel}</span>
                   </div>
                   <div className="flex items-center justify-between rounded-md border border-slate-800 p-3 text-xs">
                     <span className="text-slate-500">Specialist model</span>

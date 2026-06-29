@@ -4,20 +4,20 @@ import Brain from './Brain';
 import type { AgentStatus } from '../hooks/useAgentSystem';
 import type { ChatTurn } from '../types';
 
-interface SmithConsoleProps {
+interface TedConsoleProps {
   status: AgentStatus;
   messages: ChatTurn[];
   onSend: (text: string) => void;
 }
 
 const STATUS_LABEL: Record<AgentStatus, string> = {
-  idle: 'SMITH.STANDBY',
-  thinking: 'SMITH.DELEGATING',
-  speaking: 'SMITH.RESPONDING',
-  blocked: 'SMITH.HOLDING',
+  idle: 'TED.STANDBY',
+  thinking: 'TED.DELEGATING',
+  speaking: 'TED.RESPONDING',
+  blocked: 'TED.HOLDING',
 };
 
-export default function SmithConsole({ status, messages, onSend }: SmithConsoleProps) {
+export default function TedConsole({ status, messages, onSend }: TedConsoleProps) {
   const [draft, setDraft] = useState('');
   const [transcriptOpen, setTranscriptOpen] = useState(true);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -66,7 +66,7 @@ export default function SmithConsole({ status, messages, onSend }: SmithConsoleP
           >
             {messages.length === 0 && (
               <p className="mt-1 text-center text-sm text-slate-500">
-                Tell Smith what you need. It will pull in specialists on its own where it has to.
+                Tell TED what you need. It will pull in specialists on its own where it has to.
               </p>
             )}
             {messages.map((m, i) => (
@@ -83,7 +83,7 @@ export default function SmithConsole({ status, messages, onSend }: SmithConsoleP
             ))}
             {status === 'thinking' && (
               <div className="max-w-[85%] self-start rounded-lg border border-cyan-500/20 bg-cyan-500/5 px-3 py-2 text-sm leading-6 text-cyan-100">
-                Smith is analysing intent and selecting the right specialist agents
+                TED is analysing intent and selecting the right specialist agents
                 <span className="ml-1 inline-block h-3 w-1.5 animate-pulse bg-cyan-300 align-middle" />
               </div>
             )}
@@ -102,7 +102,7 @@ export default function SmithConsole({ status, messages, onSend }: SmithConsoleP
                 }
               }}
               rows={1}
-              placeholder="Talk to Smith…"
+              placeholder="Talk to TED…"
               className="min-h-[40px] flex-1 resize-none rounded-lg border border-slate-800 bg-slate-950/70 px-3 py-2 text-sm text-slate-100 outline-none placeholder:text-slate-600 focus:border-cyan-500/50"
             />
             <button

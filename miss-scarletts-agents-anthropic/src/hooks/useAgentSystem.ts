@@ -18,7 +18,7 @@ interface ChatEvent {
 interface PersistedState {
   agents: AgentMeta[];
   runtime: Record<string, AgentRuntime>;
-  smithStatus: AgentStatus;
+  tedStatus: AgentStatus;
   messages: ChatTurn[];
   workflow: Workflow | null;
   pendingApproval: WorkflowStep | null;
@@ -66,7 +66,7 @@ export function useAgentSystem() {
   const [agents, setAgents] = useState<AgentMeta[]>(persisted.agents ?? []);
   const [connected, setConnected] = useState(false);
   const [runtime, setRuntime] = useState<Record<string, AgentRuntime>>(persisted.runtime ?? {});
-  const [smithStatus, setSmithStatus] = useState<AgentStatus>(persisted.smithStatus ?? 'idle');
+  const [tedStatus, setTedStatus] = useState<AgentStatus>(persisted.tedStatus ?? 'idle');
   const [messages, setMessages] = useState<ChatTurn[]>(persisted.messages ?? []);
   const [workflow, setWorkflow] = useState<Workflow | null>(persisted.workflow ?? null);
   const [pendingApproval, setPendingApproval] = useState<WorkflowStep | null>(persisted.pendingApproval ?? null);
@@ -93,7 +93,7 @@ export function useAgentSystem() {
         JSON.stringify({
           agents,
           runtime,
-          smithStatus,
+          tedStatus,
           messages,
           workflow,
           pendingApproval,
@@ -102,7 +102,7 @@ export function useAgentSystem() {
     } catch {
       // Non-fatal. The live UI still works without persistence.
     }
-  }, [agents, messages, pendingApproval, runtime, smithStatus, workflow]);
+  }, [agents, messages, pendingApproval, runtime, tedStatus, workflow]);
 
   const ensureRuntime = useCallback((id: string) => {
     setRuntime((prev) => (prev[id] ? prev : { ...prev, [id]: emptyRuntime() }));
@@ -128,7 +128,7 @@ export function useAgentSystem() {
         }
         case 'log_added': {
           const entry = payload as LogEntry;
-          if (entry.source === 'SMITH' || entry.source === 'SYSTEM') break;
+          if (entry.source === 'TED' || entry.source === 'SYSTEM') break;
           ensureRuntime(entry.source);
           setRuntime((prev) => ({
             ...prev,
@@ -142,8 +142,8 @@ export function useAgentSystem() {
         }
         case 'agent_status': {
           const { agentId, status } = payload as { agentId: AgentId; status: AgentStatus };
-          if (agentId === 'smith') {
-            setSmithStatus(status);
+          if (agentId === 'ted') {
+            setTedStatus(status);
             break;
           }
           ensureRuntime(agentId);
@@ -172,9 +172,9 @@ export function useAgentSystem() {
           setPendingApproval(wf.steps.find((s) => s.status === 'override_requested') ?? null);
           break;
         }
-        case 'smith_reply': {
+        case 'ted_reply': {
           const { text } = payload as { text: string; workflowId?: string };
-          setSmithStatus('idle');
+          setTedStatus('idle');
           setMessages((prev) => [...prev, { role: 'assistant', content: text, timestamp: new Date().toISOString() }]);
           break;
         }
@@ -227,7 +227,7 @@ export function useAgentSystem() {
         { role: 'user', content: trimmed, timestamp: new Date().toISOString() },
       ];
       setMessages(nextMessages);
-      setSmithStatus('thinking');
+      setTedStatus('thinking');
 
       try {
         const response = await apiFetch('/api/chat', {
@@ -271,11 +271,11 @@ export function useAgentSystem() {
           ...prev,
           {
             role: 'assistant',
-            content: `Smith could not complete that turn: ${error instanceof Error ? error.message : String(error)}`,
+            content: `TED could not complete that turn: ${error instanceof Error ? error.message : String(error)}`,
             timestamp: new Date().toISOString(),
           },
         ]);
-        setSmithStatus('idle');
+        setTedStatus('idle');
         setConnected(false);
       }
     },
@@ -305,7 +305,7 @@ export function useAgentSystem() {
     agents,
     connected: connected || apiOnline,
     runtime,
-    smithStatus,
+    tedStatus,
     messages,
     workflow,
     pendingApproval,

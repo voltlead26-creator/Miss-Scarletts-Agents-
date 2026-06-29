@@ -4,7 +4,7 @@ import { LogLevel, StepStatus, WorkflowStatus } from '../../src/types';
 import type { AgentId, ChatTurn, LogEntry, Workflow, WorkflowStep } from '../../src/types';
 
 const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY || '';
-const SMITH_MODEL = process.env.SMITH_MODEL || 'claude-sonnet-4-6';
+const TED_MODEL = process.env.TED_MODEL || process.env.SMITH_MODEL || 'claude-sonnet-4-6';
 const SPECIALIST_MODEL = process.env.SPECIALIST_MODEL || 'claude-sonnet-4-6';
 const MAX_TOKENS = Number(process.env.MAX_TOKENS || 1500);
 const MAX_TOOL_ROUNDS = 4;
@@ -110,7 +110,7 @@ async function runSpecialist(
   return final;
 }
 
-async function runSmithTurn(
+async function runTedTurn(
   client: Anthropic,
   message: string,
   history: ChatTurn[],
@@ -121,28 +121,28 @@ async function runSmithTurn(
   conversation.push({ role: 'user', content: message });
 
   emitEvent('workflow_created', workflow);
-  emitEvent('log_added', toLog('SMITH', `Received: "${message}"`, LogLevel.INFO));
-  emitEvent('agent_status', { agentId: 'smith', status: 'thinking' });
+  emitEvent('log_added', toLog('TED', `Received: "${message}"`, LogLevel.INFO));
+  emitEvent('agent_status', { agentId: 'ted', status: 'thinking' });
 
-  const smithSystem = AGENT_GUIDES.smith;
+  const tedSystem = AGENT_GUIDES.ted;
 
   for (let round = 0; round < MAX_TOOL_ROUNDS; round += 1) {
     let response: Anthropic.Message;
     try {
       response = await client.messages.create({
-        model: SMITH_MODEL,
+        model: TED_MODEL,
         max_tokens: MAX_TOKENS,
-        system: smithSystem,
+        system: tedSystem,
         messages: conversation,
         tools: [consultTool()],
       });
     } catch (error) {
-      const msg = `Smith's model call failed: ${String(error)}`;
+      const msg = `TED's model call failed: ${String(error)}`;
       workflow.status = WorkflowStatus.FAILED;
-      emitEvent('log_added', toLog('SMITH', msg, LogLevel.ERROR));
+      emitEvent('log_added', toLog('TED', msg, LogLevel.ERROR));
       emitEvent('workflow_updated', workflow);
-      emitEvent('smith_reply', { text: msg, workflowId: workflow.id });
-      emitEvent('agent_status', { agentId: 'smith', status: 'idle' });
+      emitEvent('ted_reply', { text: msg, workflowId: workflow.id });
+      emitEvent('agent_status', { agentId: 'ted', status: 'idle' });
       return;
     }
 
@@ -156,10 +156,10 @@ async function runSmithTurn(
 
       workflow.status = WorkflowStatus.COMPLETED;
       workflow.finalReply = finalText;
-      emitEvent('log_added', toLog('SMITH', finalText, LogLevel.SUCCESS));
+      emitEvent('log_added', toLog('TED', finalText, LogLevel.SUCCESS));
       emitEvent('workflow_updated', workflow);
-      emitEvent('smith_reply', { text: finalText, workflowId: workflow.id });
-      emitEvent('agent_status', { agentId: 'smith', status: 'idle' });
+      emitEvent('ted_reply', { text: finalText, workflowId: workflow.id });
+      emitEvent('agent_status', { agentId: 'ted', status: 'idle' });
       return;
     }
 
@@ -177,7 +177,7 @@ async function runSmithTurn(
         approval_required?: boolean;
       };
 
-      const specialistId = input.agent_id as Exclude<AgentId, 'smith'>;
+      const specialistId = input.agent_id as Exclude<AgentId, 'ted'>;
 
       if (!SPECIALIST_IDS.includes(specialistId)) {
         toolResults.push({
@@ -208,13 +208,13 @@ async function runSmithTurn(
         step.status = StepStatus.OVERRIDE_REQUESTED;
         workflow.status = WorkflowStatus.PAUSED;
         emitEvent('agent_status', { agentId, status: 'blocked' });
-        emitEvent('log_added', toLog('SMITH', `Holding for owner approval — ${agentById(agentId)?.name ?? agentId}: "${step.taskName}"`, LogLevel.WARNING));
+        emitEvent('log_added', toLog('TED', `Holding for owner approval — ${agentById(agentId)?.name ?? agentId}: "${step.taskName}"`, LogLevel.WARNING));
         emitEvent('workflow_updated', workflow);
-        emitEvent('smith_reply', {
+        emitEvent('ted_reply', {
           text: `I’ve delegated ${step.taskName} to ${agentById(agentId)?.name ?? agentId}, but I’m holding the step for your approval before anything external is finalized. Approve, reject, or modify it in the panel and I’ll continue from there.`,
           workflowId: workflow.id,
         });
-        emitEvent('agent_status', { agentId: 'smith', status: 'idle' });
+        emitEvent('agent_status', { agentId: 'ted', status: 'idle' });
         return;
       }
 
@@ -236,10 +236,10 @@ async function runSmithTurn(
 
   const msg = `Stopped after ${MAX_TOOL_ROUNDS} delegation rounds without a final answer. Try narrowing the request.`;
   workflow.status = WorkflowStatus.FAILED;
-  emitEvent('log_added', toLog('SMITH', msg, LogLevel.WARNING));
+  emitEvent('log_added', toLog('TED', msg, LogLevel.WARNING));
   emitEvent('workflow_updated', workflow);
-  emitEvent('smith_reply', { text: msg, workflowId: workflow.id });
-  emitEvent('agent_status', { agentId: 'smith', status: 'idle' });
+  emitEvent('ted_reply', { text: msg, workflowId: workflow.id });
+  emitEvent('agent_status', { agentId: 'ted', status: 'idle' });
 }
 
 function jsonResponse(body: unknown, init: ResponseInit = {}) {
@@ -266,8 +266,8 @@ async function streamChat(request: Request) {
       const emitEvent = (type: string, payload: unknown) => emit(controller, encoder, type, payload);
       if (!client) {
         const msg = 'ANTHROPIC_API_KEY is not set. Add it in Netlify environment variables.';
-        emitEvent('log_added', toLog('SMITH', msg, LogLevel.ERROR));
-        emitEvent('smith_reply', { text: msg, workflowId: `wf_${Date.now()}` });
+        emitEvent('log_added', toLog('TED', msg, LogLevel.ERROR));
+        emitEvent('ted_reply', { text: msg, workflowId: `wf_${Date.now()}` });
         controller.close();
         return;
       }
@@ -275,11 +275,11 @@ async function streamChat(request: Request) {
       (async () => {
         try {
           emitEvent('init', { agents: AGENTS });
-          await runSmithTurn(client, message, history, emitEvent);
+          await runTedTurn(client, message, history, emitEvent);
         } catch (error) {
-          emitEvent('log_added', toLog('SYSTEM', `Unhandled error in Smith turn: ${String(error)}`, LogLevel.ERROR));
-          emitEvent('smith_reply', {
-            text: `Unhandled error in Smith turn: ${String(error)}`,
+          emitEvent('log_added', toLog('SYSTEM', `Unhandled error in TED's turn: ${String(error)}`, LogLevel.ERROR));
+          emitEvent('ted_reply', {
+            text: `Unhandled error in TED's turn: ${String(error)}`,
             workflowId: `wf_${Date.now()}`,
           });
         } finally {
@@ -318,7 +318,7 @@ export default async function handler(request: Request) {
   if (request.method === 'GET' && route === '/api/status') {
     return jsonResponse({
       anthropicConfigured: Boolean(ANTHROPIC_API_KEY),
-      smithModel: SMITH_MODEL,
+      tedModel: TED_MODEL,
       specialistModel: SPECIALIST_MODEL,
       backendMode: 'netlify-functions',
     });

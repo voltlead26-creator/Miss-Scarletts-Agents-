@@ -13,12 +13,11 @@ import {
   Sliders,
   BarChart3,
   FileText,
-  Megaphone,
 } from 'lucide-react';
 
 import { useAgentSystem } from './hooks/useAgentSystem';
 import AgentPod from './components/AgentPod';
-import SmithConsole from './components/SmithConsole';
+import TedConsole from './components/TedConsole';
 import MenuDrawer from './components/MenuDrawer';
 import type { AgentId } from './types';
 
@@ -35,18 +34,17 @@ const ICONS: Record<string, ComponentType<{ size?: number; color?: string; class
   Sliders,
   BarChart3,
   FileText,
-  Megaphone,
 };
 
 const LEFT_IDS: AgentId[] = ['coder', 'frontend', 'backend', 'supabase', 'netlify', 'devops'];
-const RIGHT_IDS: AgentId[] = ['qa', 'security', 'accessibility', 'prompt-engineering', 'marketing', 'product-analytics', 'technical-writing'];
+const RIGHT_IDS: AgentId[] = ['qa', 'security', 'accessibility', 'prompt-engineering', 'product-analytics', 'technical-writing'];
 
 export default function App() {
-  const { agents, connected, runtime, smithStatus, messages, workflow, pendingApproval, sendMessage, resolveApproval } =
+  const { agents, connected, runtime, tedStatus, messages, workflow, pendingApproval, sendMessage, resolveApproval } =
     useAgentSystem();
   const [menuOpen, setMenuOpen] = useState(false);
 
-  const specialists = agents.filter((a) => a.id !== 'smith');
+  const specialists = agents.filter((a) => a.id !== 'ted');
   const byId = (id: AgentId) => specialists.find((a) => a.id === id);
   const leftAgents = LEFT_IDS.map(byId).filter(Boolean) as typeof specialists;
   const rightAgents = RIGHT_IDS.map(byId).filter(Boolean) as typeof specialists;
@@ -95,7 +93,7 @@ export default function App() {
         </div>
 
         <div className="relative z-10 min-h-0">
-          <SmithConsole status={smithStatus} messages={messages} onSend={sendMessage} />
+          <TedConsole status={tedStatus} messages={messages} onSend={sendMessage} />
         </div>
 
         <div className="relative z-10 flex min-h-0 flex-col items-end justify-center gap-2 overflow-hidden">

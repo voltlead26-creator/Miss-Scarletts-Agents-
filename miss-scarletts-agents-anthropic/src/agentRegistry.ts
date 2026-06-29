@@ -1,17 +1,17 @@
 import type { AgentId, AgentMeta } from './types';
 
-export const SMITH_META: AgentMeta = {
-  id: 'smith',
-  name: 'Agent Smith',
+export const TED_META: AgentMeta = {
+  id: 'ted',
+  name: 'TED',
   role: 'Governing coordinator',
   accent: '#22d3ee',
   icon: 'Shield',
   approvalRequired: false,
-  readmeFile: 'smith.README.md',
+  readmeFile: 'ted.README.md',
 };
 
 export const AGENTS: AgentMeta[] = [
-  SMITH_META,
+  TED_META,
   { id: 'coder', name: 'Coder', role: 'Polyglot implementation specialist', accent: '#38bdf8', icon: 'Cpu', approvalRequired: false, readmeFile: 'coder.README.md' },
   { id: 'frontend', name: 'Frontend', role: 'UI and interaction specialist', accent: '#60a5fa', icon: 'Layers', approvalRequired: false, readmeFile: 'frontend.README.md' },
   { id: 'backend', name: 'Backend', role: 'Server logic and data contract specialist', accent: '#34d399', icon: 'Server', approvalRequired: false, readmeFile: 'backend.README.md' },
@@ -22,16 +22,15 @@ export const AGENTS: AgentMeta[] = [
   { id: 'security', name: 'Security', role: 'Secrets and trust-boundary specialist', accent: '#fb7185', icon: 'ShieldAlert', approvalRequired: true, readmeFile: 'security.README.md' },
   { id: 'accessibility', name: 'Accessibility', role: 'Semantic and WCAG specialist', accent: '#f59e0b', icon: 'UserCheck', approvalRequired: false, readmeFile: 'accessibility.README.md' },
   { id: 'prompt-engineering', name: 'Prompt Engineering', role: 'Instruction and tool-shaping specialist', accent: '#c084fc', icon: 'Sliders', approvalRequired: false, readmeFile: 'prompt-engineering.README.md' },
-  { id: 'marketing', name: 'Marketing', role: 'Growth, positioning, campaigns, and go-to-market specialist', accent: '#fb923c', icon: 'Megaphone', approvalRequired: false, readmeFile: 'marketing.README.md' },
   { id: 'product-analytics', name: 'Product Analytics', role: 'Measurement and insight specialist', accent: '#eab308', icon: 'BarChart3', approvalRequired: false, readmeFile: 'product-analytics.README.md' },
   { id: 'technical-writing', name: 'Technical Writing', role: 'Documentation and recovery specialist', accent: '#14b8a6', icon: 'FileText', approvalRequired: false, readmeFile: 'technical-writing.README.md' },
 ];
 
-export const SPECIALIST_IDS = AGENTS.filter((agent) => agent.id !== 'smith').map((agent) => agent.id as Exclude<AgentId, 'smith'>);
+export const SPECIALIST_IDS = AGENTS.filter((agent) => agent.id !== 'ted').map((agent) => agent.id as Exclude<AgentId, 'ted'>);
 
 export const AGENT_GUIDES: Record<AgentId, string> = {
-  smith: `Agent Smith governs the system, interprets intent, asks clarifying questions, and delegates work to specialists.
-Use Smith to define scope, split tasks, decide what needs approval, and turn specialist output into a plain-English plan.`,
+  ted: `TED governs the system, interprets intent, asks clarifying questions, and delegates work to specialists.
+Use TED to define scope, split tasks, decide what needs approval, and turn specialist output into a plain-English plan.`,
   coder: `Coder implements code changes with a modern coding-agent loop: inspect, patch, verify, summarize.
 Best for edits, refactors, bug fixes, and generating precise file-level change plans.`,
   frontend: `Frontend handles layout, interaction, motion, and component structure.
@@ -52,10 +51,9 @@ Best for approval-sensitive tasks and privilege checks.`,
 Best for WCAG-minded UI review and interaction cleanup.`,
   'prompt-engineering': `Prompt Engineering shapes instructions, delegation format, and response constraints.
 Best for clarifying intent, improving agent prompts, and tightening output structure.`,
-  marketing: `Marketing handles go-to-market strategy, positioning, demand generation, content systems, pricing campaigns, lifecycle marketing, sales enablement, brand stewardship, and growth experimentation.
-Use the Marketing source pack at agents/Marketing as the reference library when a task asks for campaign planning, marketing engines, content strategy, acquisition, retention, pricing, brand, sales enablement, or market intelligence. Return practical recommendations, campaign structures, and source-pack-informed frameworks.`,
   'product-analytics': `Product Analytics handles event design, success metrics, and behavior signals.
 Best for instrumentation, funnels, and usage insight.`,
   'technical-writing': `Technical Writing handles docs, instructions, recovery steps, and user-facing explanations.
 Best for README updates, onboarding, and clear plain-English summaries.`,
 };
+
