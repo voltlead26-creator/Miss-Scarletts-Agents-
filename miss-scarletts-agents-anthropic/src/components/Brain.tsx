@@ -26,67 +26,94 @@ const STATUS_TUNING: Record<AgentStatus, { glow: number; speed: number; pulse: n
 
 const BRAIN_Y_OFFSET = 0.18;
 
-const OUTLINE_POINTS: Array<[number, number, number]> = [
-  [-2.6, 0.25, 0.0],
-  [-2.25, 0.95, -0.35],
-  [-1.75, 1.55, 0.28],
-  [-1.0, 1.9, -0.2],
-  [-0.2, 2.05, 0.18],
-  [0.62, 1.96, -0.3],
-  [1.38, 1.62, 0.24],
-  [2.05, 1.02, -0.22],
-  [2.38, 0.26, 0.15],
-  [2.16, -0.48, -0.28],
-  [1.58, -1.04, 0.2],
-  [0.76, -1.32, -0.18],
-  [-0.1, -1.42, 0.22],
-  [-1.0, -1.3, -0.24],
-  [-1.78, -0.96, 0.18],
-  [-2.34, -0.38, -0.12],
-  [-1.5, 0.35, 0.34],
-  [-0.78, 0.72, -0.34],
-  [0.02, 0.78, 0.3],
-  [0.82, 0.58, -0.28],
-  [1.48, 0.18, 0.22],
-  [1.16, -0.48, -0.22],
-  [0.28, -0.66, 0.24],
-  [-0.62, -0.56, -0.2],
-  [-1.28, -0.1, 0.2],
-  [-0.34, 1.36, 0.42],
-  [0.94, 1.18, 0.35],
-  [-1.56, 1.08, -0.42],
-  [1.78, 0.82, -0.42],
-];
-
 function seededRandom(seed: number) {
   const next = Math.sin(seed * 12.9898) * 43758.5453;
   return next - Math.floor(next);
 }
 
-function createNeuralPoints(): Array<[number, number, number]> {
-  const points: Array<[number, number, number]> = [...OUTLINE_POINTS];
+// ---------------------------------------------------------------------------
+// Two hemispheres + cerebral cortex + dense dendritic network.
+//
+// Each hemisphere is built in two density tiers: a dense ring of "cortex"
+// points tracing a gyrus-folded boundary (the visible brain surface), and a
+// sparser interior fill of "white matter" points. The two hemispheres are
+// generated independently (different seeds) rather than mirrored, so they
+// read as organic rather than a perfect reflection. A deliberate gap is left
+// at the midline (the longitudinal fissure); the only thing crossing it is a
+// small explicit bundle of corpus-callosum links added afterward.
+// ---------------------------------------------------------------------------
 
-  for (let i = 0; i < 112; i += 1) {
-    const angle = seededRandom(i + 3) * Math.PI * 2;
-    const radius = Math.sqrt(seededRandom(i + 37));
-    const x = Math.cos(angle) * radius * 2.46 + (seededRandom(i + 71) - 0.5) * 0.18;
-    const y = Math.sin(angle) * radius * 1.55 + 0.12 + (seededRandom(i + 109) - 0.5) * 0.16;
+const CORTEX_PER_HEMISPHERE = 58;
+const INTERIOR_PER_HEMISPHERE = 30;
+const FISSURE_HALF_GAP = 0.16;
 
-    const leftLobeBias = x < -0.18 ? -0.1 : x > 0.4 ? 0.08 : 0;
-    const z = (seededRandom(i + 151) - 0.5) * 0.96 + leftLobeBias;
-    const withinTop = y < 1.96 - Math.abs(x) * 0.16;
-    const withinBottom = y > -1.32 + Math.abs(x) * 0.08;
-    const withinWidth = Math.abs(x) < 2.58 - Math.max(0, -y - 0.1) * 0.3;
-
-    if (withinTop && withinBottom && withinWidth) {
-      points.push([x, y, z]);
-    }
-  }
-
-  return points;
+interface HemiPoint {
+  point: [number, number, number];
+  isCortex: boolean;
 }
 
-function createNeuralLinks(points: Array<[number, number, number]>) {
+function buildHemisphere(sign: 1 | -1, seedBase: number): HemiPoint[] {
+  const cx = sign * 1.3;
+  const cy = 0.3;
+  const out: HemiPoint[] = [];
+
+  for (let i = 0; i < CORTEX_PER_HEMISPHERE; i += 1) {
+    const theta = (i / CORTEX_PER_HEMISPHERE) * Math.PI * 2;
+    const fold =
+      1 +
+      0.1 * Math.sin(5 * theta + seedBase * 1.7) +
+      0.055 * Math.sin(9 * theta + seedBase * 2.6) +
+      0.032 * Math.sin(13 * theta - seedBase * 1.3);
+    const rx = 1.48 * fold;
+    const ry = 1.5 * fold;
+    const jitterX = (seededRandom(i + seedBase * 71) - 0.5) * 0.06;
+    const jitterY = (seededRandom(i + seedBase * 113) - 0.5) * 0.06;
+    let x = cx + Math.cos(theta) * rx * sign + jitterX;
+    const y = cy + Math.sin(theta) * ry + jitterY;
+    const z = (seededRandom(i + seedBase * 191) - 0.5) * 0.85;
+
+    // keep the midline clear so the two hemispheres don't fuse
+    if (sign === -1 && x > -FISSURE_HALF_GAP) x = -FISSURE_HALF_GAP - seededRandom(i + 7) * 0.1;
+    if (sign === 1 && x < FISSURE_HALF_GAP) x = FISSURE_HALF_GAP + seededRandom(i + 7) * 0.1;
+
+    out.push({ point: [x, y, z], isCortex: true });
+  }
+
+  for (let i = 0; i < INTERIOR_PER_HEMISPHERE; i += 1) {
+    const theta = seededRandom(i + seedBase * 37) * Math.PI * 2;
+    const radius = Math.sqrt(seededRandom(i + seedBase * 53)) * 0.92;
+    let x = cx + Math.cos(theta) * radius * 1.3 * sign;
+    const y = cy + Math.sin(theta) * radius * 1.35;
+    const z = (seededRandom(i + seedBase * 233) - 0.5) * 0.6;
+
+    if (sign === -1 && x > -FISSURE_HALF_GAP) x = -FISSURE_HALF_GAP - seededRandom(i + 13) * 0.15;
+    if (sign === 1 && x < FISSURE_HALF_GAP) x = FISSURE_HALF_GAP + seededRandom(i + 13) * 0.15;
+
+    out.push({ point: [x, y, z], isCortex: false });
+  }
+
+  return out;
+}
+
+function createNeuralPoints(): { points: Array<[number, number, number]>; cortexFlags: boolean[]; hemiOf: number[] } {
+  const left = buildHemisphere(-1, 11);
+  const right = buildHemisphere(1, 53);
+  const all = [...left, ...right];
+  return {
+    points: all.map((p) => p.point),
+    cortexFlags: all.map((p) => p.isCortex),
+    hemiOf: [...left.map(() => 0), ...right.map(() => 1)],
+  };
+}
+
+function distance2(a: [number, number, number], b: [number, number, number]) {
+  const dx = a[0] - b[0];
+  const dy = a[1] - b[1];
+  const dz = a[2] - b[2];
+  return dx * dx + dy * dy + dz * dz * 0.5;
+}
+
+function createNeuralLinks(points: Array<[number, number, number]>, hemiOf: number[]) {
   const links = new Set<string>();
   const add = (a: number, b: number) => {
     if (a === b) return;
@@ -94,67 +121,61 @@ function createNeuralLinks(points: Array<[number, number, number]>) {
     links.add(key);
   };
 
-  [
-    [0, 2],
-    [0, 5],
-    [1, 4],
-    [1, 7],
-    [2, 8],
-    [3, 11],
-    [4, 10],
-    [5, 14],
-    [6, 13],
-    [7, 15],
-    [8, 16],
-    [9, 18],
-    [10, 20],
-    [11, 21],
-    [12, 22],
-    [13, 23],
-    [14, 24],
-    [16, 19],
-    [17, 21],
-    [18, 23],
-    [19, 24],
-    [20, 25],
-    [21, 26],
-    [22, 27],
-    [23, 28],
-    [25, 18],
-    [26, 20],
-    [27, 17],
-    [28, 19],
-  ].forEach(([a, b]) => add(a, b));
-
+  // dense nearest-neighbour wiring within each hemisphere
   points.forEach((point, index) => {
     const nearest = points
-      .map((candidate, candidateIndex) => {
-        const dx = candidate[0] - point[0];
-        const dy = candidate[1] - point[1];
-        const dz = candidate[2] - point[2];
-        return { candidateIndex, distance: dx * dx + dy * dy + dz * dz * 0.5 };
-      })
+      .map((candidate, candidateIndex) => ({ candidateIndex, distance: distance2(candidate, point) }))
       .filter((item) => item.candidateIndex !== index)
       .sort((a, b) => a.distance - b.distance)
-      .slice(0, index < 29 ? 5 : 3);
+      .slice(0, 6);
 
     nearest.forEach((item) => {
-      if (item.distance < 1.35 || seededRandom(index * 31 + item.candidateIndex) > 0.38) {
+      if (item.distance < 0.42 || seededRandom(index * 31 + item.candidateIndex) > 0.55) {
         add(index, item.candidateIndex);
       }
     });
-
-    if (index > 29 && seededRandom(index + 401) > 0.72) {
-      const cross = 29 + Math.floor(seededRandom(index + 503) * (points.length - 29));
-      add(index, cross);
-    }
   });
+
+  // a small explicit corpus-callosum bundle bridging the two hemispheres —
+  // the only thing allowed to cross the fissure
+  const leftIdx = points.map((_, i) => i).filter((i) => hemiOf[i] === 0);
+  const rightIdx = points.map((_, i) => i).filter((i) => hemiOf[i] === 1);
+  const pairs: Array<{ a: number; b: number; d: number }> = [];
+  leftIdx.forEach((a) => {
+    rightIdx.forEach((b) => {
+      pairs.push({ a, b, d: distance2(points[a], points[b]) });
+    });
+  });
+  pairs.sort((p, q) => p.d - q.d);
+  pairs.slice(0, 6).forEach(({ a, b }) => add(a, b));
 
   return Array.from(links).map((key) => key.split(':').map(Number) as [number, number]);
 }
 
-const NODE_POINTS = createNeuralPoints();
-const LINKS = createNeuralLinks(NODE_POINTS);
+// short terminal stubs off real nodes, ending in empty space — this is what
+// reads as "dendrites" rather than a plain node graph
+function createDendriteStubs(points: Array<[number, number, number]>) {
+  const segments: Array<[[number, number, number], [number, number, number]]> = [];
+  points.forEach((point, index) => {
+    const stubCount = seededRandom(index * 17 + 5) > 0.45 ? (seededRandom(index * 19 + 9) > 0.7 ? 2 : 1) : 0;
+    for (let s = 0; s < stubCount; s += 1) {
+      const angle = seededRandom(index * 23 + s * 41) * Math.PI * 2;
+      const tilt = (seededRandom(index * 29 + s * 47) - 0.5) * Math.PI;
+      const length = 0.1 + seededRandom(index * 37 + s * 53) * 0.16;
+      const end: [number, number, number] = [
+        point[0] + Math.cos(angle) * Math.cos(tilt) * length,
+        point[1] + Math.sin(tilt) * length,
+        point[2] + Math.sin(angle) * Math.cos(tilt) * length,
+      ];
+      segments.push([point, end]);
+    }
+  });
+  return segments;
+}
+
+const { points: NODE_POINTS, hemiOf: HEMI_OF } = createNeuralPoints();
+const LINKS = createNeuralLinks(NODE_POINTS, HEMI_OF);
+const DENDRITE_SEGMENTS = createDendriteStubs(NODE_POINTS);
 
 function hexToRgb(hex: string) {
   const normalized = hex.replace('#', '');
@@ -181,27 +202,6 @@ function brainVector(point: [number, number, number]) {
   return new THREE.Vector3(point[0], point[1] + BRAIN_Y_OFFSET, point[2]);
 }
 
-function makeSegmentedOrbitGeometry(radius: number, depthScale: number, segments: number, gapRatio: number) {
-  const positions: number[] = [];
-  const pointsPerSegment = 28;
-
-  for (let segment = 0; segment < segments; segment += 1) {
-    const start = (segment / segments) * Math.PI * 2;
-    const end = ((segment + 1 - gapRatio) / segments) * Math.PI * 2;
-
-    for (let i = 0; i < pointsPerSegment; i += 1) {
-      const a1 = start + ((end - start) * i) / pointsPerSegment;
-      const a2 = start + ((end - start) * (i + 1)) / pointsPerSegment;
-      positions.push(Math.cos(a1) * radius, 0, Math.sin(a1) * radius * depthScale);
-      positions.push(Math.cos(a2) * radius, 0, Math.sin(a2) * radius * depthScale);
-    }
-  }
-
-  const geometry = new THREE.BufferGeometry();
-  geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
-  return geometry;
-}
-
 function CoreBrainScene({ status }: { status: AgentStatus }) {
   const mountRef = useRef<HTMLDivElement>(null);
   const statusRef = useRef(status);
@@ -226,9 +226,8 @@ function CoreBrainScene({ status }: { status: AgentStatus }) {
     const electric = new THREE.Color('#38e8ff');
     const white = new THREE.Color('#ecfeff');
     const brainGroup = new THREE.Group();
-    const ringGroup = new THREE.Group();
     const pedestalGroup = new THREE.Group();
-    scene.add(brainGroup, ringGroup, pedestalGroup);
+    scene.add(brainGroup, pedestalGroup);
 
     const glowSprite = (() => {
       const canvas = document.createElement('canvas');
@@ -253,13 +252,15 @@ function CoreBrainScene({ status }: { status: AgentStatus }) {
       return { sprite, material };
     })();
 
+    // cortex contour — one closed gyrus-folded line per hemisphere
     const shellMaterial = new THREE.LineBasicMaterial({ color: electric, transparent: true, opacity: 0.8 });
     const brightMaterial = new THREE.LineBasicMaterial({ color: white, transparent: true, opacity: 0.54 });
+    const leftCortexIdx = NODE_POINTS.map((_, i) => i).filter((i) => HEMI_OF[i] === 0).slice(0, 58);
+    const rightCortexIdx = NODE_POINTS.map((_, i) => i).filter((i) => HEMI_OF[i] === 1).slice(0, 58);
+    const closedLoop = (idx: number[]) => [...idx, idx[0]].map((i) => brainVector(NODE_POINTS[i]));
     const shellCurves = [
-      makeCurve(NODE_POINTS.slice(0, 16).map(brainVector), 120),
-      makeCurve([0, 3, 6, 8, 10, 12, 14, 0].map((i) => brainVector(NODE_POINTS[i])), 120),
-      makeCurve([1, 17, 18, 19, 20, 9].map((i) => brainVector(NODE_POINTS[i])), 80),
-      makeCurve([15, 24, 23, 22, 21, 10].map((i) => brainVector(NODE_POINTS[i])), 80),
+      makeCurve(closedLoop(leftCortexIdx), 200),
+      makeCurve(closedLoop(rightCortexIdx), 200),
     ];
 
     shellCurves.forEach((geometry, index) => {
@@ -267,6 +268,7 @@ function CoreBrainScene({ status }: { status: AgentStatus }) {
       brainGroup.add(line);
     });
 
+    // dense link mesh (the "pathways")
     const linkGeometry = new THREE.BufferGeometry();
     const linkPositions: number[] = [];
     for (const [a, b] of LINKS) {
@@ -275,46 +277,29 @@ function CoreBrainScene({ status }: { status: AgentStatus }) {
       linkPositions.push(start[0], start[1] + BRAIN_Y_OFFSET, start[2], end[0], end[1] + BRAIN_Y_OFFSET, end[2]);
     }
     linkGeometry.setAttribute('position', new THREE.Float32BufferAttribute(linkPositions, 3));
-    const linkMaterial = new THREE.LineBasicMaterial({ color: electric, transparent: true, opacity: 0.62 });
+    const linkMaterial = new THREE.LineBasicMaterial({ color: electric, transparent: true, opacity: 0.5 });
     brainGroup.add(new THREE.LineSegments(linkGeometry, linkMaterial));
 
-    const pointGeometry = new THREE.BufferGeometry().setFromPoints(
-      NODE_POINTS.map(brainVector)
-    );
+    // dendrite stubs (the "dendrites") — same material family, dimmer
+    const dendriteGeometry = new THREE.BufferGeometry();
+    const dendritePositions: number[] = [];
+    for (const [start, end] of DENDRITE_SEGMENTS) {
+      dendritePositions.push(start[0], start[1] + BRAIN_Y_OFFSET, start[2], end[0], end[1] + BRAIN_Y_OFFSET, end[2]);
+    }
+    dendriteGeometry.setAttribute('position', new THREE.Float32BufferAttribute(dendritePositions, 3));
+    const dendriteMaterial = new THREE.LineBasicMaterial({ color: electric, transparent: true, opacity: 0.3 });
+    brainGroup.add(new THREE.LineSegments(dendriteGeometry, dendriteMaterial));
+
+    const pointGeometry = new THREE.BufferGeometry().setFromPoints(NODE_POINTS.map(brainVector));
     const pointMaterial = new THREE.PointsMaterial({
       color: electric,
-      size: 0.075,
+      size: 0.07,
       transparent: true,
       opacity: 0.95,
       depthWrite: false,
       blending: THREE.AdditiveBlending,
     });
     brainGroup.add(new THREE.Points(pointGeometry, pointMaterial));
-
-    const ringMaterials = [
-      new THREE.LineBasicMaterial({ color: electric, transparent: true, opacity: 0.78 }),
-      new THREE.LineBasicMaterial({ color: white, transparent: true, opacity: 0.55 }),
-      new THREE.LineBasicMaterial({ color: electric, transparent: true, opacity: 0.48 }),
-    ];
-
-    const ringPivots: THREE.Group[] = [];
-    const ringGeometries: THREE.BufferGeometry[] = [];
-    [
-      { radius: 4.05, depth: 0.62, y: -0.18, tilt: 1.13, yaw: -0.36, segments: 9, material: ringMaterials[0] },
-      { radius: 3.36, depth: 0.56, y: -0.08, tilt: 1.2, yaw: 0.26, segments: 12, material: ringMaterials[1] },
-      { radius: 2.46, depth: 0.5, y: 0.02, tilt: 1.28, yaw: -0.08, segments: 15, material: ringMaterials[2] },
-    ].forEach((ring) => {
-      const pivot = new THREE.Group();
-      const geometry = makeSegmentedOrbitGeometry(ring.radius, ring.depth, ring.segments, 0.28);
-      const line = new THREE.LineSegments(geometry, ring.material);
-      line.rotation.x = ring.tilt;
-      line.rotation.z = ring.yaw;
-      pivot.position.y = ring.y;
-      pivot.add(line);
-      ringGroup.add(pivot);
-      ringPivots.push(pivot);
-      ringGeometries.push(geometry);
-    });
 
     const pedestalMaterial = new THREE.LineBasicMaterial({ color: electric, transparent: true, opacity: 0.42 });
     const pedestalGeometry = new THREE.BufferGeometry().setFromPoints([
@@ -347,24 +332,19 @@ function CoreBrainScene({ status }: { status: AgentStatus }) {
       const tuning = STATUS_TUNING[statusRef.current];
       const pulse = (Math.sin(elapsed * tuning.pulse) + 1) / 2;
       const glow = tuning.glow * (0.56 + pulse * 0.44);
+      const swaySpeed = 0.16 + tuning.speed * 0.18;
 
-      brainGroup.rotation.y = Math.sin(elapsed * 0.22) * 0.08;
-      brainGroup.rotation.x = Math.sin(elapsed * 0.18) * 0.035;
+      brainGroup.rotation.y = Math.sin(elapsed * swaySpeed) * 0.1;
+      brainGroup.rotation.x = Math.sin(elapsed * swaySpeed * 0.82) * 0.04;
       glowSprite.material.opacity = glow;
       glowSprite.sprite.scale.set(5.3 + pulse * 0.42, 3.55 + pulse * 0.32, 1);
 
       shellMaterial.opacity = 0.58 + glow * 0.36;
       brightMaterial.opacity = 0.34 + glow * 0.28;
-      linkMaterial.opacity = 0.38 + tuning.line * 0.3 + pulse * 0.16;
+      linkMaterial.opacity = 0.3 + tuning.line * 0.28 + pulse * 0.16;
+      dendriteMaterial.opacity = 0.16 + tuning.line * 0.18 + pulse * 0.1;
       pointMaterial.opacity = 0.64 + pulse * 0.34;
-      pointMaterial.size = 0.065 + pulse * 0.022;
-
-      ringPivots[0].rotation.y = elapsed * tuning.speed;
-      ringPivots[1].rotation.y = -elapsed * tuning.speed * 1.32;
-      ringPivots[2].rotation.y = elapsed * tuning.speed * 1.82;
-      ringMaterials[0].opacity = 0.5 + glow * 0.32;
-      ringMaterials[1].opacity = 0.34 + glow * 0.26;
-      ringMaterials[2].opacity = 0.26 + glow * 0.22;
+      pointMaterial.size = 0.062 + pulse * 0.02;
 
       renderer.render(scene, camera);
       frameId = requestAnimationFrame(animate);
@@ -380,15 +360,15 @@ function CoreBrainScene({ status }: { status: AgentStatus }) {
       renderer.dispose();
       shellCurves.forEach((geometry) => geometry.dispose());
       linkGeometry.dispose();
+      dendriteGeometry.dispose();
       pointGeometry.dispose();
       pedestalGeometry.dispose();
-      ringGeometries.forEach((geometry) => geometry.dispose());
       shellMaterial.dispose();
       brightMaterial.dispose();
       linkMaterial.dispose();
+      dendriteMaterial.dispose();
       pointMaterial.dispose();
       pedestalMaterial.dispose();
-      ringMaterials.forEach((material) => material.dispose());
       glowSprite.material.map?.dispose();
       glowSprite.material.dispose();
       mount.removeChild(renderer.domElement);
