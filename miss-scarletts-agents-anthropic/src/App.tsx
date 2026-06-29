@@ -13,6 +13,7 @@ import {
   Sliders,
   BarChart3,
   FileText,
+  Megaphone,
 } from 'lucide-react';
 
 import { useAgentSystem } from './hooks/useAgentSystem';
@@ -34,10 +35,11 @@ const ICONS: Record<string, ComponentType<{ size?: number; color?: string; class
   Sliders,
   BarChart3,
   FileText,
+  Megaphone,
 };
 
 const LEFT_IDS: AgentId[] = ['coder', 'frontend', 'backend', 'supabase', 'netlify', 'devops'];
-const RIGHT_IDS: AgentId[] = ['qa', 'security', 'accessibility', 'prompt-engineering', 'product-analytics', 'technical-writing'];
+const RIGHT_IDS: AgentId[] = ['qa', 'security', 'accessibility', 'prompt-engineering', 'marketing', 'product-analytics', 'technical-writing'];
 
 export default function App() {
   const { agents, connected, runtime, smithStatus, messages, workflow, pendingApproval, sendMessage, resolveApproval } =

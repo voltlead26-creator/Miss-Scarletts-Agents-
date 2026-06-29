@@ -48,6 +48,7 @@ const SPECIALISTS: AgentMeta[] = [
   { id: 'security', name: 'Security', role: 'Secrets and trust-boundary specialist', accent: '#fb7185', icon: 'ShieldAlert', approvalRequired: true, readmeFile: 'security.README.md' },
   { id: 'accessibility', name: 'Accessibility', role: 'Semantic and WCAG specialist', accent: '#f59e0b', icon: 'UserCheck', approvalRequired: false, readmeFile: 'accessibility.README.md' },
   { id: 'prompt-engineering', name: 'Prompt Engineering', role: 'Instruction and tool-shaping specialist', accent: '#c084fc', icon: 'Sliders', approvalRequired: false, readmeFile: 'prompt-engineering.README.md' },
+  { id: 'marketing', name: 'Marketing', role: 'Growth, positioning, campaigns, and go-to-market specialist', accent: '#fb923c', icon: 'Megaphone', approvalRequired: false, readmeFile: 'marketing.README.md' },
   { id: 'product-analytics', name: 'Product Analytics', role: 'Measurement and insight specialist', accent: '#eab308', icon: 'BarChart3', approvalRequired: false, readmeFile: 'product-analytics.README.md' },
   { id: 'technical-writing', name: 'Technical Writing', role: 'Documentation and recovery specialist', accent: '#14b8a6', icon: 'FileText', approvalRequired: false, readmeFile: 'technical-writing.README.md' },
 ];

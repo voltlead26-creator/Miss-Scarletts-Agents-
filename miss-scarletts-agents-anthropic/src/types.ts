@@ -67,6 +67,7 @@ export type AgentId =
   | 'security'
   | 'accessibility'
   | 'prompt-engineering'
+  | 'marketing'
   | 'product-analytics'
   | 'technical-writing';
 

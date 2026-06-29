@@ -59,5 +59,6 @@ order.
 - **security** — secrets, auth boundaries, threat review *(approval required)*
 - **accessibility** — WCAG, semantics, keyboard and screen-reader behavior
 - **prompt-engineering** — instruction design, tool schemas, structured output
+- **marketing** — go-to-market, positioning, campaigns, content systems, and growth source-pack work
 - **product-analytics** — instrumentation, funnels, metrics
 - **technical-writing** — docs, error copy, recovery guidance

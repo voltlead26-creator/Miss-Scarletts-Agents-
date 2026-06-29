@@ -56,3 +56,4 @@ Netlify Functions handler.
 - `src/hooks/useAgentSystem.ts` - client state and streaming API adapter.
 - `src/components/Brain.tsx` - animated neon reactor brain rendering.
 - `src/agentRegistry.ts` - shared agent roster and prompt guides.
+- `agents/Marketing/` - Marketing source pack copied from the Marketing repo.
